@@ -14,7 +14,7 @@ export class Utils {
         return new Promise((resolve) => {
             vscode.window.showInformationMessage("Client is not connected. Reconnect?", "Reconnect").then(async value => {
                 if (value === "Reconnect") {
-                    await AppContext.reloadWorkSpace();
+                    await AppContext.reloadWorkspace();
                     resolve(callbackYes());
                 } else {
                     return callbackNo();

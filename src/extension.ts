@@ -15,7 +15,7 @@ function registerFileSystem(context: vscode.ExtensionContext) {
 	}));
 
 	context.subscriptions.push(vscode.commands.registerCommand('bpmcode.reloadWorkspace', async () => {
-		AppContext.reloadWorkSpace();
+		AppContext.reloadWorkspace();
 	}));
 }
 
