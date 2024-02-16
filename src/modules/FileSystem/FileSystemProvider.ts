@@ -2,7 +2,6 @@ import * as vscode from 'vscode';
 import { Schema, WorkSpaceItem, SchemaType, BuildResponse } from '../../api/TypeDefinitions';
 import { ConfigurationHelper } from '../../common/ConfigurationHelper';
 import { Utils } from '../../common/Utils';
-import { PushToSVNPanel } from '../SVN/PushSVNPanel';
 import { SimplePanel } from '../SimplePanel/simplepanel';
 import { WebviewHelper } from '../../common/WebView/WebViewHelper';
 import { AppContext } from '../../globalContext';
@@ -128,20 +127,6 @@ export class FileSystemProvider implements vscode.FileSystemProvider {
     }
     //#endregion
 
-    commit(packageName: string, message: any) {
-        vscode.window.withProgress({
-            "location": vscode.ProgressLocation.Notification,
-            "title": `Performing ${packageName} commit`
-        }, async (progress, token) => {
-            let response = await AppContext.client.commit(packageName, message);
-            if (response?.success && response?.commitResult === 0) {
-                vscode.window.showInformationMessage(`${packageName} commit - ${response.commitResultName}`);
-            } else if (response?.commitResult !== 0) {
-                vscode.window.showErrorMessage(`${packageName} commit - ${response!.commitResultName}`);
-            }
-        });
-    }
-
     build() {
         vscode.window.withProgress({
             "location": vscode.ProgressLocation.Notification,
@@ -205,57 +190,6 @@ export class FileSystemProvider implements vscode.FileSystemProvider {
             );
             panel.createPanel();
         });
-    }
-
-    generateChanges(resourceUri: vscode.Uri, context: vscode.ExtensionContext) {
-        vscode.window.withProgress(
-            {
-                "location": vscode.ProgressLocation.Notification,
-                "title": "Loading diff"
-            }, async (progress, token) => {
-                let memDir = this.getMemFolder(resourceUri);
-                if (!memDir || !memDir.package) { return; }
-                let changes = await AppContext.client?.generateChanges(memDir.package.name);
-                return changes;
-            }).then(changes => {
-                if (changes) {
-                    if (changes.length === 0) {
-                        vscode.window.showInformationMessage("No changes found");
-                        return;
-                    }
-                    // Open webview
-                    let panel = new PushToSVNPanel(context, this.getMemFolder(resourceUri)!.package!.name, changes[0]);
-                    panel.createPanel();
-                } else {
-                    vscode.window.showErrorMessage("Changes could not be generated");
-                }
-            });
-    }
-
-    pullChanges(resourceUri: vscode.Uri, context: vscode.ExtensionContext) {
-        vscode.window.withProgress(
-            {
-                "location": vscode.ProgressLocation.Notification,
-                "title": "Pulling from SVN"
-            }, async (progress, token) => {
-                let memDir = this.getMemFolder(resourceUri);
-                if (!memDir || !memDir.package) { return; }
-                let response = await AppContext.client?.sourceControlUpdate(memDir.package.name);
-                return response;
-            }).then(response => {
-                if (response?.changes && response.success) {
-                    if (response.changes.length === 0) {
-                        vscode.window.showInformationMessage("No changes found");
-                        return;
-                    }
-                    // Open webview
-                    // let panel = new PushToSVNPanel(context, this.getMemFolder(resourceUri)!.package!.name, changes[0]);
-                    // panel.createPanel();
-                    // TODO: changes view
-                } else {
-                    vscode.window.showErrorMessage(`Changes could not be generated. ${response?.errorInfo?.message.toString() || ''}`);
-                }
-            });
     }
 
     reloadFile(resourceUri: vscode.Uri) {
