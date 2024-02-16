@@ -1,13 +1,13 @@
 import * as vscode from "vscode";
-import { CreatioCodeContext } from "../../globalContext";
-import { Entry, File, Directory } from '../../modules/FileSystem/ExplorerItem';
+import { AppContext } from "../../globalContext";
+import { File } from '../../modules/FileSystem/ExplorerItem';
 
 
-export class CreatioExplorerDecorationProvider
+export class ExplorerDecorationProvider
     implements vscode.FileDecorationProvider {
     
     constructor() {
-        CreatioCodeContext.fsProvider.onDidChangeFile(
+        AppContext.fsProvider.onDidChangeFile(
             (events: vscode.FileChangeEvent[]) => {
                 events.forEach((event) => {
                     if (event.type === vscode.FileChangeType.Changed) {
@@ -22,9 +22,9 @@ export class CreatioExplorerDecorationProvider
         uri: vscode.Uri,
         token: vscode.CancellationToken
     ): vscode.ProviderResult<vscode.FileDecoration> {
-        if (uri.scheme === "creatio") {
-            const file = CreatioCodeContext.fsProvider.getMemFile(uri);
-            const folder = CreatioCodeContext.fsProvider.getMemFolder(uri);
+        if (uri.scheme === "bpmsoft") {
+            const file = AppContext.fsProvider.getMemFile(uri);
+            const folder = AppContext.fsProvider.getMemFolder(uri);
             if (file) {
                 return this.buildFileDecoration(file);
             } else if (folder) {

@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
-import { PackageMetaInfo, Schema, WorkSpaceItem } from "../../creatio-api/CreatioTypeDefinitions";
-import { CreatioCodeContext } from "../../globalContext";
+import { PackageMetaInfo, Schema, WorkSpaceItem } from "../../api/TypeDefinitions";
+import { AppContext } from "../../globalContext";
 
 export class File implements vscode.FileStat {
 
@@ -54,8 +54,8 @@ export class Directory implements vscode.FileStat {
 
 export type Entry = File | Directory;
 
-export class CreatioExplorerItem extends vscode.TreeItem {
-    children: CreatioExplorerItem[] = [];
+export class ExplorerItem extends vscode.TreeItem {
+    children: ExplorerItem[] = [];
     resourceUri: vscode.Uri;
 
     constructor(resource: Entry) {
@@ -65,18 +65,18 @@ export class CreatioExplorerItem extends vscode.TreeItem {
                 ? vscode.TreeItemCollapsibleState.Collapsed
                 : vscode.TreeItemCollapsibleState.None
         );
-        this.resourceUri = CreatioCodeContext.fsHelper.getPath(resource);
+        this.resourceUri = AppContext.fsHelper.getPath(resource);
         if (resource instanceof Directory) {
-            this.contextValue = "CreatioPackage";
+            this.contextValue = "BPMSoftPackage";
             this.iconPath = resource.package?.isReadOnly
                 ? new vscode.ThemeIcon("gist-private")
                 : new vscode.ThemeIcon("file-directory");
             this.description = resource.package?.version;
             this.tooltip = `Maintainer: ${resource.package?.maintainer}\nDescription: ${resource.package?.description}`;
         } else {
-            this.contextValue = "CreatioSchema";
+            this.contextValue = "BPMSoftSchema";
             this.command = {
-                command: "creatiocode.loadFile",
+                command: "bpmcode.loadFile",
                 title: "Open file",
                 arguments: [this.resourceUri],
             };
@@ -110,12 +110,12 @@ export class CreatioExplorerItem extends vscode.TreeItem {
         });
     }
 
-    getChildren(): vscode.ProviderResult<CreatioExplorerItem[]> {
-        let entries = CreatioCodeContext.fsProvider.getDirectoryContents(
+    getChildren(): vscode.ProviderResult<ExplorerItem[]> {
+        let entries = AppContext.fsProvider.getDirectoryContents(
             this.resourceUri!
         );
         return this.sortEntries(entries).map(
-            (entry) => new CreatioExplorerItem(entry)
+            (entry) => new ExplorerItem(entry)
         );
     }
 }

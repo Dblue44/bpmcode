@@ -1,6 +1,5 @@
-import { type } from 'os';
 import * as vscode from 'vscode';
-import { CreatioCodeContext } from '../../globalContext';
+import { AppContext } from '../../globalContext';
 import { IntellisenseHelper } from './IntellisenseHelper';
 
 export class ObjectDefinitionProvider implements vscode.DefinitionProvider {
@@ -30,7 +29,7 @@ export class ObjectDefinitionProvider implements vscode.DefinitionProvider {
     async getDefinitionFromParents(documentUri: vscode.Uri, methodName: string): Promise<vscode.Definition | vscode.LocationLink[] | null> {
         let definitions: vscode.Location[] = [];
 
-        let chain = await CreatioCodeContext.creatioFileRelationProvider.getMethodsInheritanceChain(documentUri, new vscode.CancellationTokenSource().token);
+        let chain = await AppContext.fileRelationProvider.getMethodsInheritanceChain(documentUri, new vscode.CancellationTokenSource().token);
         if (!chain) {
             return null;
         }
@@ -51,7 +50,7 @@ export class ObjectDefinitionProvider implements vscode.DefinitionProvider {
         let object = IntellisenseHelper.getCurrentObject(objectChain);
         
         if (typeof(object) === 'function') {
-            definition = new vscode.Location(vscode.Uri.parse('creatio-completion:' + object.toString()), new vscode.Position(0, 0));
+            definition = new vscode.Location(vscode.Uri.parse('bpmsoft-completion:' + object.toString()), new vscode.Position(0, 0));
         }
 
         return definition;

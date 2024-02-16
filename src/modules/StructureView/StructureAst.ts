@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-import * as parser from "@babel/parser";
-import traverse, { Node, NodePath } from "@babel/traverse";
-import * as babel from "@babel/types";
-import * as vscode from "vscode";
+import * as parser from '@babel/parser';
+import traverse, { Node, NodePath } from '@babel/traverse';
+import * as babel from '@babel/types';
+import * as vscode from 'vscode';
 
 export interface ShemaStructureNode {
     tag: string;

@@ -1,6 +1,5 @@
 import * as vscode from 'vscode';
 import { GenericWebViewPanel } from "../../common/WebView/GenericWebViewPanel";
-import { PackageChangeEntry } from "../../creatio-api/CreatioTypeDefinitions";
 
 export class SimplePanel extends GenericWebViewPanel {
     content: string;
