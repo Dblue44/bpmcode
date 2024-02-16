@@ -22,11 +22,17 @@ export class LoginPanel extends GenericWebViewPanel {
                     ConfigurationHelper.setLoginData(connectionInfo);
 
                     if (await AppContext.tryCreateConnection()) {
-                        AppContext.reloadWorkSpace();
+                        AppContext.reloadWorkspace();
                         this.dispose();
                     }
                 } catch (error: any) {
-                    vscode.window.showErrorMessage(error.message);
+                    if (error.code === 'ECONNREFUSED') {
+                        vscode.window.showErrorMessage(`Couldn't connect to ${error.address}:${error.port}`);
+                    }
+                    else {
+                        vscode.window.showErrorMessage(error.message);
+                    }
+
                     return error;
                 }
                 break;
