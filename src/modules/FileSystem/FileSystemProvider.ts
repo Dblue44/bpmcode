@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import { Schema, WorkSpaceItem, SchemaType, BuildResponse } from '../../api/TypeDefinitions';
 import { ConfigurationHelper } from '../../common/ConfigurationHelper';
 import { Utils } from '../../common/Utils';
-import { SimplePanel } from '../SimplePanel/simplepanel';
+import { SimplePanel } from '../SimplePanel/SimplePanel';
 import { WebviewHelper } from '../../common/WebView/WebViewHelper';
 import { AppContext } from '../../globalContext';
 import { wait } from 'ts-retry';
