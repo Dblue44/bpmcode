@@ -1,17 +1,12 @@
-import { GenericWebViewProvider } from "../../common/WebView/GenericWebViewProvider";
 import * as vscode from 'vscode';
-import { CreatioClient } from "../../creatio-api/CreatioClient";
 import { ConfigurationHelper } from "../../common/ConfigurationHelper";
-import path from "path";
-import { CreatioFileSystemProvider } from "../FileSystem/CreatioFileSystemProvider";
-import { ConnectionInfo } from "../../creatio-api/ConnectionInfo";
-import { CreatioCodeUtils } from "../../common/CreatioCodeUtils";
+import { ConnectionInfo } from "../../api/ConnectionInfo";
 import { GenericWebViewPanel } from "../../common/WebView/GenericWebViewPanel";
-import { CreatioCodeContext } from "../../globalContext";
+import { AppContext } from "../../globalContext";
 
-export class CreatioLoginPanel extends GenericWebViewPanel {
-    protected webViewId = "creatiocode.creatioLoginPanel";
-    protected title = "Creatio Login";
+export class LoginPanel extends GenericWebViewPanel {
+    protected webViewId = "bpmcode.LoginPanel";
+    protected title = "Login";
     
     protected onDidReceiveMessage = async (message: any) => {
         switch (message.command) {
@@ -19,15 +14,16 @@ export class CreatioLoginPanel extends GenericWebViewPanel {
                 try {
                     let connectionInfo = new ConnectionInfo(message.connectionInfo.url, message.connectionInfo.login, message.connectionInfo.password);
                     if (connectionInfo.getHostName() === '') {
-                        vscode.window.showErrorMessage("Unable to parse url. Example: http://localhost:81");
+                        vscode.window.showErrorMessage("Unable to parse url. Example: http://localhost:5000");
+                        // TODO: After login always showing message: Unsupported protocol, need research
                     } else if (connectionInfo.getProtocol() !== 'http' || connectionInfo.getProtocol() !== 'https') {
                         vscode.window.showErrorMessage("Unsupported protocol");
                     }
 
                     ConfigurationHelper.setLoginData(connectionInfo);
 
-                    if (await CreatioCodeContext.tryCreateConnection()) {
-                        CreatioCodeContext.reloadWorkSpace();
+                    if (await AppContext.tryCreateConnection()) {
+                        AppContext.reloadWorkSpace();
                         this.dispose();
                     }
                 } catch (error: any) {
@@ -38,7 +34,6 @@ export class CreatioLoginPanel extends GenericWebViewPanel {
             case 'getLoginData':
                 this.postMessage(ConfigurationHelper.getLoginData() ? ConfigurationHelper.getLoginData() : {});
                 break;
-
         }
     };
 

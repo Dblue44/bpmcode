@@ -1,17 +1,15 @@
 import * as vscode from 'vscode';
-import { CreatioClient } from '../../creatio-api/CreatioClient';
-import { PackageMetaInfo, Schema, WorkSpaceItem, SchemaType, CastSchemaFromeExport as CastSchemaFromExport } from '../../creatio-api/CreatioTypeDefinitions';
+import { Schema, WorkSpaceItem, SchemaType } from '../../api/TypeDefinitions';
 import { ConfigurationHelper } from '../../common/ConfigurationHelper';
-import { FileSystemHelper } from './FileSystemHelper';
-import { CreatioCodeUtils } from '../../common/CreatioCodeUtils';
+import { Utils } from '../../common/Utils';
 import { PushToSVNPanel } from '../SVN/PushSVNPanel';
 import { SimplePanel } from '../SimplePanel/simplepanel';
 import { WebviewHelper } from '../../common/WebView/WebViewHelper';
-import { CreatioCodeContext, ReloadStatus } from '../../globalContext';
-import { wait, waitUntil } from 'ts-retry';
+import { AppContext } from '../../globalContext';
+import { wait } from 'ts-retry';
 import { Entry, File, Directory } from './ExplorerItem';
 
-export class CreatioFileSystemProvider implements vscode.FileSystemProvider {
+export class FileSystemProvider implements vscode.FileSystemProvider {
 
     folders: Directory[] = [];
     files: File[] = [];
@@ -23,11 +21,11 @@ export class CreatioFileSystemProvider implements vscode.FileSystemProvider {
 
     //#region FileSystemProvider
     writeFile(uri: vscode.Uri, content: Uint8Array, options: { create: boolean, overwrite: boolean }): void | Thenable<void> {
-        let file: any = CreatioCodeContext.fsHelper.read(uri);
+        let file: any = AppContext.fsHelper.read(uri);
         // Local save
         if (file && file.schema) {
             file.schema.body = content.toString();
-            CreatioCodeContext.fsHelper.write(file);
+            AppContext.fsHelper.write(file);
         }
 
         if (!file && options.create) {
@@ -51,7 +49,7 @@ export class CreatioFileSystemProvider implements vscode.FileSystemProvider {
             return this.root;
         }
 
-        let folder = this.folders.find(x => CreatioCodeContext.fsHelper.getPath(x).path === uri.path);
+        let folder = this.folders.find(x => AppContext.fsHelper.getPath(x).path === uri.path);
         if (folder) {
             return folder;
         }
@@ -87,7 +85,7 @@ export class CreatioFileSystemProvider implements vscode.FileSystemProvider {
             }
         });
         
-        // CreatioCodeContext.explorer.reveal(uri);
+        // AppContext.explorer.reveal(uri);
         return result;
     }
 
@@ -119,9 +117,9 @@ export class CreatioFileSystemProvider implements vscode.FileSystemProvider {
     delete(uri: vscode.Uri): void {
         vscode.window.showInformationMessage("Package deletion is not supported. Please use web interface.");
         // let file = this.getMemFile(uri);
-        // if (CreatioCodeContext.client && CreatioCodeContext.client.isConnected()) {
+        // if (AppContext.client && AppContext.client.isConnected()) {
         //     if (file) {
-        //         CreatioCodeContext.client.deleteSchema([file.workSpaceItem.id]);
+        //         AppContext.client.deleteSchema([file.workSpaceItem.id]);
         //         this._fireSoon({ type: vscode.FileChangeType.Deleted, uri });
         //     } else {
         //         vscode.window.showInformationMessage("Package deletion is not supported. Please use web interface.");
@@ -135,7 +133,7 @@ export class CreatioFileSystemProvider implements vscode.FileSystemProvider {
             "location": vscode.ProgressLocation.Notification,
             "title": `Performing ${packageName} commit`
         }, async (progress, token) => {
-            let response = await CreatioCodeContext.client.commit(packageName, message);
+            let response = await AppContext.client.commit(packageName, message);
             if (response?.success && response?.commitResult === 0) {
                 vscode.window.showInformationMessage(`${packageName} commit - ${response.commitResultName}`);
             } else if (response?.commitResult !== 0) {
@@ -150,9 +148,10 @@ export class CreatioFileSystemProvider implements vscode.FileSystemProvider {
                 "location": vscode.ProgressLocation.Notification,
                 "title": "Compiling"
             }, async (progress, token) => {
-                let response = await CreatioCodeContext.client?.build();
+                let response = await AppContext.client?.build();
+                // TODO: Refactor
                 if (!response?.success && response?.errors) {
-                    CreatioCodeUtils.createYesNoDialouge(`Build failed with ${response.errors.length} errors. Show errors?`, () => {
+                    Utils.createYesNoDialouge(`Build failed with ${response.errors.length} errors. Show errors?`, () => {
                         let tableArray = new Array<Array<string>>();
                         tableArray.push(["File", "Line", "Column", "Code", "Error"]);
                         response!.errors!.forEach(error => {
@@ -174,7 +173,7 @@ export class CreatioFileSystemProvider implements vscode.FileSystemProvider {
                                 padding: 5px;
                             }
                         </style>`;
-                        let panel = new SimplePanel(CreatioCodeContext.extensionContext, `Build errors ${new Date(Date.now()).toISOString()}`, style + WebviewHelper.createTableString(tableArray));
+                        let panel = new SimplePanel(AppContext.extensionContext, `Build errors ${new Date(Date.now()).toISOString()}`, style + WebviewHelper.createTableString(tableArray));
                         panel.createPanel();
                     });
 
@@ -192,9 +191,10 @@ export class CreatioFileSystemProvider implements vscode.FileSystemProvider {
                 "location": vscode.ProgressLocation.Notification,
                 "title": "Compiling"
             }, async (progress, token) => {
-                let response = await CreatioCodeContext.client?.rebuild();
+                let response = await AppContext.client?.rebuild();
+                // TODO: Refactor
                 if (!response?.success && response?.errors) {
-                    CreatioCodeUtils.createYesNoDialouge(`Build failed with ${response.errors.length} errors. Show errors?`, () => {
+                    Utils.createYesNoDialouge(`Build failed with ${response.errors.length} errors. Show errors?`, () => {
                         let tableArray = new Array<Array<string>>();
                         tableArray.push(["File", "Line", "Column", "Code", "Error"]);
                         response!.errors!.forEach(error => {
@@ -216,7 +216,7 @@ export class CreatioFileSystemProvider implements vscode.FileSystemProvider {
                                 padding: 5px;
                             }
                         </style>`;
-                        let panel = new SimplePanel(CreatioCodeContext.extensionContext, `Build errors ${new Date(Date.now()).toISOString()}`, style + WebviewHelper.createTableString(tableArray));
+                        let panel = new SimplePanel(AppContext.extensionContext, `Build errors ${new Date(Date.now()).toISOString()}`, style + WebviewHelper.createTableString(tableArray));
                         panel.createPanel();
                     });
 
@@ -236,7 +236,7 @@ export class CreatioFileSystemProvider implements vscode.FileSystemProvider {
             }, async (progress, token) => {
                 let memDir = this.getMemFolder(resourceUri);
                 if (!memDir || !memDir.package) { return; }
-                let changes = await CreatioCodeContext.client?.generateChanges(memDir.package.name);
+                let changes = await AppContext.client?.generateChanges(memDir.package.name);
                 return changes;
             }).then(changes => {
                 if (changes) {
@@ -261,7 +261,7 @@ export class CreatioFileSystemProvider implements vscode.FileSystemProvider {
             }, async (progress, token) => {
                 let memDir = this.getMemFolder(resourceUri);
                 if (!memDir || !memDir.package) { return; }
-                let response = await CreatioCodeContext.client?.sourceControlUpdate(memDir.package.name);
+                let response = await AppContext.client?.sourceControlUpdate(memDir.package.name);
                 return response;
             }).then(response => {
                 if (response?.changes && response.success) {
@@ -287,10 +287,10 @@ export class CreatioFileSystemProvider implements vscode.FileSystemProvider {
             }, async (progress, token) => {
                 const inMemFile = this.getMemFile(resourceUri);
                 if (!inMemFile) { return; }
-                let schema = await CreatioCodeContext.client!.getSchema(inMemFile.workSpaceItem.uId, inMemFile.workSpaceItem.type);
+                let schema = await AppContext.client!.getSchema(inMemFile.workSpaceItem.uId, inMemFile.workSpaceItem.type);
                 if (schema) {
                     inMemFile.schema = schema;
-                    CreatioCodeContext.fsHelper.write(inMemFile);
+                    AppContext.fsHelper.write(inMemFile);
                     this.changeMemFile(resourceUri, inMemFile);
                 } else {
                     throw vscode.FileSystemError.FileNotFound();
@@ -299,7 +299,7 @@ export class CreatioFileSystemProvider implements vscode.FileSystemProvider {
     }
 
     unlockSchema(resourceUri: vscode.Uri) {
-        if (!CreatioCodeContext.client.isConnected()) { 
+        if (!AppContext.client.isConnected()) { 
             throw new Error("Client not connected"); 
         }
 
@@ -311,7 +311,7 @@ export class CreatioFileSystemProvider implements vscode.FileSystemProvider {
                 "title": "Unlocking schema"
             },
             async (progress, token) => {
-                let response = await CreatioCodeContext.client.unlockSchema([memFile?.workSpaceItem]);
+                let response = await AppContext.client.unlockSchema([memFile?.workSpaceItem]);
                 if (response && response.success) {
                     memFile.workSpaceItem.isLocked = false;
                     await this.changeMemFile(resourceUri, memFile);
@@ -323,7 +323,7 @@ export class CreatioFileSystemProvider implements vscode.FileSystemProvider {
     }
 
     lockSchema(resourceUri: vscode.Uri) {
-        if (!CreatioCodeContext.client) { return; }
+        if (!AppContext.client) { return; }
         const memFile = this.getMemFile(resourceUri);
         if (!memFile?.workSpaceItem) { return; }
         vscode.window.withProgress(
@@ -332,7 +332,7 @@ export class CreatioFileSystemProvider implements vscode.FileSystemProvider {
                 "title": "Locking schema"
             },
             async (progress, token) => {
-                let response = await CreatioCodeContext.client!.lockSchema([memFile?.workSpaceItem]);
+                let response = await AppContext.client!.lockSchema([memFile?.workSpaceItem]);
                 if (response && response.success) {
                     memFile.workSpaceItem.isLocked = true;
                     await this.changeMemFile(resourceUri, memFile);
@@ -345,7 +345,7 @@ export class CreatioFileSystemProvider implements vscode.FileSystemProvider {
 
     getUriByName(schemaName: string): vscode.Uri[] {
         let files = this.files.filter(x => x.name === `${schemaName}${ConfigurationHelper.getExtension(SchemaType.clientUnit)}`);
-        return files.map(x => CreatioCodeContext.fsHelper.getPath(x));
+        return files.map(x => AppContext.fsHelper.getPath(x));
     }
 
     getSchemaUri(uId: string): vscode.Uri {
@@ -353,7 +353,7 @@ export class CreatioFileSystemProvider implements vscode.FileSystemProvider {
         if (!file) {
             throw new Error("Schema not found");
         }
-        return CreatioCodeContext.fsHelper.getPath(file);
+        return AppContext.fsHelper.getPath(file);
     }
 
     restoreSchema(uri: vscode.Uri) {
@@ -364,7 +364,7 @@ export class CreatioFileSystemProvider implements vscode.FileSystemProvider {
                     location: vscode.ProgressLocation.Notification,
                     title: "Restoring schema"
                 }, async (progress, token) => {
-                    let response = await CreatioCodeContext.client?.revertElements([memFile!.workSpaceItem]);
+                    let response = await AppContext.client?.revertElements([memFile!.workSpaceItem]);
                     if (!response?.success) {
                         vscode.window.showErrorMessage(JSON.stringify(response?.errorInfo));
                         return;
@@ -394,17 +394,17 @@ export class CreatioFileSystemProvider implements vscode.FileSystemProvider {
     }
 
     clearCache() {
-        CreatioCodeUtils.createYesNoDialouge("Delete all downloaded files?", () => {
-            CreatioCodeContext.fsHelper.deleteDirectory(CreatioCodeContext.fsHelper.cacheFolder);
+        Utils.createYesNoDialouge("Delete all downloaded files?", () => {
+            AppContext.fsHelper.deleteDirectory(AppContext.fsHelper.cacheFolder);
             this.files = [];
             this.folders = [];
-            // CreatioCodeContext.explorer.refresh();
+            // AppContext.explorer.refresh();
         });
     }
 
     cacheFolder(folder: vscode.Uri): Promise<void> {
         return new Promise((resolve, reject) => {
-            CreatioCodeUtils.createYesNoDialouge("Download package?", async () => {
+            Utils.createYesNoDialouge("Download package?", async () => {
                 vscode.window.withProgress({
                     location: vscode.ProgressLocation.Notification,
                     cancellable: true,
@@ -418,7 +418,7 @@ export class CreatioFileSystemProvider implements vscode.FileSystemProvider {
                         if (token.isCancellationRequested) {
                             break;
                         }
-                        await this.getFile(CreatioCodeContext.fsHelper.getPath(iterator), true);
+                        await this.getFile(AppContext.fsHelper.getPath(iterator), true);
                         progress.report({
                             message: `Downloading package: '${folder.path}' file: ${iterator.name}`,
                             increment: 100 / files.length
@@ -431,7 +431,7 @@ export class CreatioFileSystemProvider implements vscode.FileSystemProvider {
     }
 
     getDirectoryContents(uri: vscode.Uri): Entry[] {
-        const pack = this.folders.find(x => CreatioCodeContext.fsHelper.getPath(x).path === uri.path);
+        const pack = this.folders.find(x => AppContext.fsHelper.getPath(x).path === uri.path);
         if (pack?.package) {
             return this.files.filter(x => x?.workSpaceItem.packageUId === pack.package?.uId);
         } else {
@@ -441,9 +441,9 @@ export class CreatioFileSystemProvider implements vscode.FileSystemProvider {
 
     async getParentFiles(file: File, token: vscode.CancellationToken): Promise<{ files: Array<File>, cancelled: boolean }> {
         let items = [] as Array<File>;
-        if (CreatioCodeContext.client) {
+        if (AppContext.client) {
             // Ensure loaded
-            let first = await this.getFile(CreatioCodeContext.fsHelper.getPath(file), true);
+            let first = await this.getFile(AppContext.fsHelper.getPath(file), true);
             if (first) {
                 items.push(first);
                 // @ts-ignore
@@ -513,15 +513,15 @@ export class CreatioFileSystemProvider implements vscode.FileSystemProvider {
     }
 
     getMemFile(uri: vscode.Uri): File | undefined {
-        return this.files.find(x => CreatioCodeContext.fsHelper.getPath(x).path === uri.path);
+        return this.files.find(x => AppContext.fsHelper.getPath(x).path === uri.path);
     }
 
     getMemFolder(uri: vscode.Uri): Directory | undefined {
-        return this.folders.find(x => CreatioCodeContext.fsHelper.getPath(x).path === uri.path);
+        return this.folders.find(x => AppContext.fsHelper.getPath(x).path === uri.path);
     }
 
     private async changeMemFile(uri: vscode.Uri, file: File) {
-        const index = this.files.findIndex(x => CreatioCodeContext.fsHelper.getPath(x).path === uri.path);
+        const index = this.files.findIndex(x => AppContext.fsHelper.getPath(x).path === uri.path);
         this.files[index] = file;
 
         if (file.schema && file.schema.body) {
@@ -544,7 +544,7 @@ export class CreatioFileSystemProvider implements vscode.FileSystemProvider {
     }
 
     private async loadFile(uri: vscode.Uri) {
-        let inMemFile = this.files.find(file => CreatioCodeContext.fsHelper.getPath(file).path === uri.path);
+        let inMemFile = this.files.find(file => AppContext.fsHelper.getPath(file).path === uri.path);
         if (!inMemFile) {
             throw vscode.FileSystemError.FileNotFound();
         }
@@ -554,19 +554,19 @@ export class CreatioFileSystemProvider implements vscode.FileSystemProvider {
         /* Experimental feature try at your own risk
         // Try experimental fast load
         try {
-            let schemaNew = await CreatioCodeContext.client!.exportSchema([inMemFile.workSpaceItem]);
+            let schemaNew = await AppContext.client!.exportSchema([inMemFile.workSpaceItem]);
             schema = CastSchemaFromExport(schemaNew);
         } catch (err) {
             // Fallback to normal slow loading method
-            schema = await CreatioCodeContext.client!.getSchema(inMemFile.workSpaceItem.uId, inMemFile.workSpaceItem.type);
+            schema = await AppContext.client!.getSchema(inMemFile.workSpaceItem.uId, inMemFile.workSpaceItem.type);
         }
         */
 
-        schema = await CreatioCodeContext.client!.getSchema(inMemFile.workSpaceItem.uId, inMemFile.workSpaceItem.type);
+        schema = await AppContext.client!.getSchema(inMemFile.workSpaceItem.uId, inMemFile.workSpaceItem.type);
 
         if (schema) {
             inMemFile.schema = schema;
-            CreatioCodeContext.fsHelper.write(inMemFile);
+            AppContext.fsHelper.write(inMemFile);
             return inMemFile;
         } else {
             throw vscode.FileSystemError.FileNotFound();
@@ -582,15 +582,15 @@ export class CreatioFileSystemProvider implements vscode.FileSystemProvider {
             this.verificationList.push(uri);
         }
 
-        let localFile = CreatioCodeContext.fsHelper.read(uri);
+        let localFile = AppContext.fsHelper.read(uri);
         vscode.window.withProgress({
             location: vscode.ProgressLocation.Window,
             title: `Comparing ${uri.path} to server version`,
         }, async (progress) => {
-            await CreatioCodeContext.client!.getSchema(localFile!.workSpaceItem.uId, localFile!.workSpaceItem.type).then(async (schema) => {
+            await AppContext.client!.getSchema(localFile!.workSpaceItem.uId, localFile!.workSpaceItem.type).then(async (schema) => {
                 if (schema) {
                     if (JSON.stringify(schema.body) !== JSON.stringify(localFile!.schema?.body)) {
-                        CreatioCodeUtils.createYesNoDialouge(`File on server is different from local. Pull ${schema.name} from server?`, () => {
+                        Utils.createYesNoDialouge(`File on server is different from local. Pull ${schema.name} from server?`, () => {
                             localFile!.schema = schema;
                             this.changeMemFile(uri, localFile!);
                         });
@@ -620,9 +620,10 @@ export class CreatioFileSystemProvider implements vscode.FileSystemProvider {
      * @returns 
      */
     async getFile(uri: vscode.Uri, silent: boolean = false): Promise<File> {
-        if (!CreatioCodeContext.client || !CreatioCodeContext.client.isConnected()) {
+        if (!AppContext.client || !AppContext.client.isConnected()) {
             let connectionInfo = ConfigurationHelper.getLoginData();
             if (this.reconnects.includes(connectionInfo!.getHostName())) {
+                // eslint-disable-next-line no-throw-literal
                 throw "";
             }
 
@@ -630,7 +631,7 @@ export class CreatioFileSystemProvider implements vscode.FileSystemProvider {
             this.reconnects.push(connectionInfo!.getHostName()); 
             if (isReconnect === "Reconnect") {
                 this.reconnects.splice(this.reconnects.indexOf(connectionInfo!.getHostName()), 1);
-                let success = await CreatioCodeContext.reloadWorkSpace();
+                let success = await AppContext.reloadWorkSpace();
                 if (success) {
                     return await this.getFile(uri, silent);
                 } else {
@@ -638,20 +639,20 @@ export class CreatioFileSystemProvider implements vscode.FileSystemProvider {
                 }
             } else if (isReconnect === "No") {
                 this.reconnects.splice(this.reconnects.indexOf(connectionInfo!.getHostName()), 1);
-                CreatioCodeUtils.closeFileIfOpen(uri);
+                Utils.closeFileIfOpen(uri);
                 throw new vscode.FileSystemError("Unable to open file due to lack of connection");
             } else {
                 await new Promise(resolve => setTimeout(resolve, 5000));
                 return await this.getFile(uri, silent);
             }
         } else {
-            let inMemFile = this.files.find(file => CreatioCodeContext.fsHelper.getPath(file).path === uri.path);
+            let inMemFile = this.files.find(file => AppContext.fsHelper.getPath(file).path === uri.path);
             if (!inMemFile) {
                 throw vscode.FileSystemError.FileNotFound();
             }
 
             // Try to read from disk
-            let localFile = CreatioCodeContext.fsHelper.read(uri);
+            let localFile = AppContext.fsHelper.read(uri);
 
             if (localFile && localFile.isLoaded()) {
                 const minutes = 15;
@@ -670,14 +671,14 @@ export class CreatioFileSystemProvider implements vscode.FileSystemProvider {
     private async innerReload(): Promise<boolean | undefined> {
         this.files = [];
         this.folders = [];
-        CreatioCodeContext.explorer.refresh();
+        AppContext.explorer.refresh();
 
-        if (CreatioCodeContext.client.isConnected()) {
-            CreatioCodeContext.fsHelper.root = CreatioCodeContext.client.connectionInfo!.getHostName();
+        if (AppContext.client.isConnected()) {
+            AppContext.fsHelper.root = AppContext.client.connectionInfo!.getHostName();
 
             let result = await vscode.window.withProgress({
                 location: vscode.ProgressLocation.Notification,
-                title: `Loading ${CreatioCodeContext.client.connectionInfo!.getHostName()}`,
+                title: `Loading ${AppContext.client.connectionInfo!.getHostName()}`,
                 cancellable: true
             }, async (progress, token) => {
 
@@ -686,7 +687,7 @@ export class CreatioFileSystemProvider implements vscode.FileSystemProvider {
                     message: "Getting packages"
                 });
 
-                this.folders = (await CreatioCodeContext.client!.getPackages()).map(x => new Directory(x.name, x));
+                this.folders = (await AppContext.client!.getPackages()).map(x => new Directory(x.name, x));
                 if (this.folders.length === 0) {
                     vscode.window.showErrorMessage("No available packages found");
                     return false;
@@ -701,7 +702,7 @@ export class CreatioFileSystemProvider implements vscode.FileSystemProvider {
                     message: "Getting workspace items"
                 });
 
-                this.files = (await CreatioCodeContext.client!.getWorkspaceItems()).map(x => new File(CreatioCodeContext.fsHelper.withExtension(x), x));
+                this.files = (await AppContext.client!.getWorkspaceItems()).map(x => new File(AppContext.fsHelper.withExtension(x), x));
                 if (this.files.length === 0) {
                     vscode.window.showErrorMessage("No available schemas found");
                     return false;
@@ -717,8 +718,8 @@ export class CreatioFileSystemProvider implements vscode.FileSystemProvider {
                 );
 
                 this.folders.forEach(element => {
-                    const uri = CreatioCodeContext.fsHelper.getPath(element);
-                    const baseDir = CreatioCodeContext.fsHelper.getBaseDir(uri);
+                    const uri = AppContext.fsHelper.getPath(element);
+                    const baseDir = AppContext.fsHelper.getBaseDir(uri);
 
                     this._fireSoon(
                         { type: vscode.FileChangeType.Changed, uri: baseDir },
@@ -728,16 +729,16 @@ export class CreatioFileSystemProvider implements vscode.FileSystemProvider {
 
                 this.files.forEach(file => {
                     file.mtime = Date.now();
-                    CreatioCodeContext.fsHelper.update(file);
+                    AppContext.fsHelper.update(file);
                     this._fireSoon({
                         type: vscode.FileChangeType.Created,
-                        uri: CreatioCodeContext.fsHelper.getPath(file)
+                        uri: AppContext.fsHelper.getPath(file)
                     });
                 });
 
                 // Fix to update opened files
                 vscode.window.visibleTextEditors.forEach(editor => {
-                    if (editor.document.uri.scheme === "creatio") {
+                    if (editor.document.uri.scheme === "bpmsoft") {
                         this._fireSoon({
                             type: vscode.FileChangeType.Changed,
                             uri: editor.document.uri
@@ -792,7 +793,7 @@ export class CreatioFileSystemProvider implements vscode.FileSystemProvider {
             title: `Saving file ${file.name}`
         }, async (progress, token) => {
             file.workSpaceItem.modifiedOn = Date.now().toString();
-            const response = await CreatioCodeContext.client?.saveSchema(file.schema!, file.workSpaceItem.type);
+            const response = await AppContext.client?.saveSchema(file.schema!, file.workSpaceItem.type);
             if (!response || response.success === false) {
                 vscode.window.showErrorMessage("Error saving file");
             } else {

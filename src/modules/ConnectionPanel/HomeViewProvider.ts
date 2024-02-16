@@ -1,9 +1,8 @@
 import * as vscode from 'vscode';
-import { CreatioClient } from '../../creatio-api/CreatioClient';
 import { ConfigurationHelper } from '../../common/ConfigurationHelper';
 import { GenericWebViewProvider } from '../../common/WebView/GenericWebViewProvider';
-import { ConnectionInfo } from '../../creatio-api/ConnectionInfo';
-import { CreatioCodeContext } from '../../globalContext';
+import { ConnectionInfo } from '../../api/ConnectionInfo';
+import { AppContext } from '../../globalContext';
 
 export class HomeViewProvider extends GenericWebViewProvider {
     scripts = ['homeView.js'];
@@ -16,8 +15,8 @@ export class HomeViewProvider extends GenericWebViewProvider {
                     let connectionInfo = new ConnectionInfo(message.connectionInfo.url, message.connectionInfo.login, message.connectionInfo.password);
                     ConfigurationHelper.setLoginData(connectionInfo);
                     
-                    if (await CreatioCodeContext.tryCreateConnection()) {
-                        vscode.commands.executeCommand('creatiocode.reloadCreatioWorkspace');
+                    if (await AppContext.tryCreateConnection()) {
+                        vscode.commands.executeCommand('bpmcode.reloadWorkspace');
                     }     
                 } catch (error: any) {
                     vscode.window.showErrorMessage(error.message);
@@ -28,7 +27,7 @@ export class HomeViewProvider extends GenericWebViewProvider {
                 this.webviewView?.webview.postMessage(ConfigurationHelper.getLoginData() ? ConfigurationHelper.getLoginData() : {});
                 break;
             case 'reload': 
-                vscode.commands.executeCommand('creatiocode.reloadCreatioWorkspace');
+                vscode.commands.executeCommand('bpmcode.reloadWorkspace');
                 break;
         }
     };

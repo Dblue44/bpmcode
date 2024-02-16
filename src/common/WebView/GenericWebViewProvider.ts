@@ -1,6 +1,6 @@
 import path from 'path';
 import * as vscode from 'vscode';
-import { CreatioCodeContext } from '../../globalContext';
+import { AppContext } from '../../globalContext';
 
 export abstract class GenericWebViewProvider implements vscode.WebviewViewProvider {
   protected webviewView?: vscode.WebviewView;
@@ -21,7 +21,7 @@ export abstract class GenericWebViewProvider implements vscode.WebviewViewProvid
     let result = '';
     this.styles.forEach(style => {
       if (this.webviewView) {
-        const stylePathOnDisk = vscode.Uri.file(path.join(CreatioCodeContext.extensionContext.extensionPath, "resources", "css", style));
+        const stylePathOnDisk = vscode.Uri.file(path.join(AppContext.extensionContext.extensionPath, "resources", "css", style));
         result += `<link rel="stylesheet" href="${this.webviewView?.webview.asWebviewUri(stylePathOnDisk)}">\n`;
       }
     });
@@ -32,7 +32,7 @@ export abstract class GenericWebViewProvider implements vscode.WebviewViewProvid
     let result = '';
     this.scripts.forEach(script => {
       if (this.webviewView) {
-        const scriptPathOnDisk = vscode.Uri.file(path.join(CreatioCodeContext.extensionContext.extensionPath, "resources", "js", script));
+        const scriptPathOnDisk = vscode.Uri.file(path.join(AppContext.extensionContext.extensionPath, "resources", "js", script));
         result += `<script src="${this.webviewView?.webview.asWebviewUri(scriptPathOnDisk)}"></script>\n`;
       }
     });
@@ -58,7 +58,7 @@ export abstract class GenericWebViewProvider implements vscode.WebviewViewProvid
     this.webviewView.webview.options = {
       enableScripts: true,
       localResourceRoots: [
-        vscode.Uri.file(path.join(CreatioCodeContext.extensionContext.extensionPath, 'resources'))
+        vscode.Uri.file(path.join(AppContext.extensionContext.extensionPath, 'resources'))
       ]
     };
     webviewView.webview.html = this.getHtml();

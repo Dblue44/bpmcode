@@ -1,20 +1,20 @@
 import * as vscode from 'vscode';
 import { ConfigurationHelper } from './common/ConfigurationHelper';
-import { CreatioCodeUtils } from './common/CreatioCodeUtils';
-import { ConnectionInfo } from './creatio-api/ConnectionInfo';
-import { CreatioClient } from './creatio-api/CreatioClient';
+import { Utils } from './common/Utils';
+import { ConnectionInfo } from './api/ConnectionInfo';
+import { ApiClient } from './api/Client';
 import { CommentDefinitionProvider } from './modules/CommentIntellisense/CommentDefinitionProvider';
-import { CreatioLoginPanel } from './modules/ConnectionPanel/CreatioLoginPanel';
-import { CreatioExplorer } from './modules/FileSystem/CreatioExplorer';
-import { CreatioFileSystemProvider } from './modules/FileSystem/CreatioFileSystemProvider';
-import { CreatioExplorerDecorationProvider } from './modules/FileSystem/ExplorerDecorationProvider';
+import { LoginPanel } from './modules/ConnectionPanel/LoginPanel';
+import { Explorer } from './modules/FileSystem/Explorer';
+import { FileSystemProvider } from './modules/FileSystem/FileSystemProvider';
+import { ExplorerDecorationProvider } from './modules/FileSystem/ExplorerDecorationProvider';
 import { FileSystemHelper } from './modules/FileSystem/FileSystemHelper';
 import { IntellisenseVirtualFileSystemProvider } from './modules/Intellisense/IntellisenseVirtualFileSystemProvider';
 import { ObjectCompletionItemProvider } from './modules/Intellisense/ObjectCompletionItemProvider';
 import { ObjectDefinitionProvider } from './modules/Intellisense/ObjectDefinitionProvider';
 import { ObjectHoverProvider } from './modules/Intellisense/ObjectHoverProvider';
 import { SchemaMetaDataViewProvider } from "./modules/Legacy/SchemaMetaDataViewProvider";
-import { CreatioFileRelationProvider } from './modules/RelatedFiles/CreatioFileRealtionProvider';
+import { FileRelationProvider } from './modules/RelatedFiles/FileRealtionProvider';
 import { InheritanceViewProvider } from './modules/RelatedFiles/InheritanceViewProvider';
 import { SchemaStructureDefinitionProvider } from './modules/StructureView/StructureViewProvider';
 
@@ -27,14 +27,14 @@ export enum ReloadStatus {
 /**
  * Used to access and register global extension objects.
  */
-export class CreatioCodeContext {
+export class AppContext {
     static init(context: vscode.ExtensionContext) {
 	    this.extensionContext = context;
-        this.fsProvider = new CreatioFileSystemProvider();
-        this.client = new CreatioClient();
+        this.fsProvider = new FileSystemProvider();
+        this.client = new ApiClient();
         this.fsHelper = new FileSystemHelper();
-        this.explorer = new CreatioExplorer();
-        this.decorationProvider = new CreatioExplorerDecorationProvider();
+        this.explorer = new Explorer();
+        this.decorationProvider = new ExplorerDecorationProvider();
 
         this.definitionProvider = new ObjectDefinitionProvider();
         this.hoverProvider = new ObjectHoverProvider();
@@ -46,17 +46,17 @@ export class CreatioCodeContext {
         this.metadataProvider = new SchemaMetaDataViewProvider();
         this.inheritanceProvider = new InheritanceViewProvider();
 
-        this.creatioFileRelationProvider = new CreatioFileRelationProvider();
+        this.fileRelationProvider = new FileRelationProvider();
     }
 
-    static fileSystemName: string = "creatio";
+    static fileSystemName: string = "bpmsoft";
     static extensionContext: vscode.ExtensionContext;
     
-    static fsProvider: CreatioFileSystemProvider;
-    static client: CreatioClient;
+    static fsProvider: FileSystemProvider;
+    static client: ApiClient;
     static fsHelper: FileSystemHelper;
-    static explorer: CreatioExplorer;
-    static decorationProvider: CreatioExplorerDecorationProvider;
+    static explorer: Explorer;
+    static decorationProvider: ExplorerDecorationProvider;
 
     static definitionProvider: ObjectDefinitionProvider;
     static hoverProvider: ObjectHoverProvider;
@@ -68,11 +68,11 @@ export class CreatioCodeContext {
     static metadataProvider: SchemaMetaDataViewProvider;
     static inheritanceProvider: InheritanceViewProvider;
 
-    static creatioFileRelationProvider: CreatioFileRelationProvider;
+    static fileRelationProvider: FileRelationProvider;
 
     static async getInput(oldInput: any): Promise<ConnectionInfo | undefined> {
         const url = await vscode.window.showInputBox({
-            title: 'Creatio url',
+            title: 'Url',
             value: oldInput?.url || "baseurl"
         });
         if (!url) {
@@ -80,7 +80,7 @@ export class CreatioCodeContext {
         }
     
         const login = await vscode.window.showInputBox({
-            title: 'Creatio login',
+            title: 'Login',
             value: oldInput?.login || "Supervisor"
         });
         if (!login) {
@@ -88,7 +88,7 @@ export class CreatioCodeContext {
         }
     
         const password = await vscode.window.showInputBox({
-            title: 'Creatio password',
+            title: 'Password',
             value: oldInput?.password || "Supervisor"
         });
         if (!password) {
@@ -98,36 +98,36 @@ export class CreatioCodeContext {
         return new ConnectionInfo(url, login, password);
     }
     
-    static async tryCreateConnection(): Promise<CreatioClient | null> {
+    static async tryCreateConnection(): Promise<ApiClient | null> {
         let connectionInfo: ConnectionInfo | undefined = ConfigurationHelper.getLoginData();
         if (connectionInfo) {
             // Deserializing
             connectionInfo = new ConnectionInfo(connectionInfo.url, connectionInfo.login, connectionInfo.password);
-            return await CreatioCodeContext.client.login(connectionInfo) ? CreatioCodeContext.client : null;
+            return await AppContext.client.login(connectionInfo) ? AppContext.client : null;
         }
         return null;
     }
     
     static async createWorkspace(context: vscode.ExtensionContext) {
-        let panelProvider = new CreatioLoginPanel(context);
+        let panelProvider = new LoginPanel(context);
         panelProvider.createPanel();
     }
     
     static async reloadWorkSpace(): Promise<ReloadStatus> {
-        vscode.commands.executeCommand('setContext', 'creatio.workspaceLoaded', false);
+        vscode.commands.executeCommand('setContext', 'bpmcode.workspaceLoaded', false);
         let connectionInfo = ConfigurationHelper.getLoginData();
         if (!connectionInfo) {
             return ReloadStatus.error;
         }
         
-        CreatioCodeContext.fsHelper.root = connectionInfo.getHostName();
+        AppContext.fsHelper.root = connectionInfo.getHostName();
 
         var client = await this.tryCreateConnection();
         if (client) {
-            let reloaded = await CreatioCodeContext.fsProvider.reload();
+            let reloaded = await AppContext.fsProvider.reload();
             if (reloaded) {
-                CreatioCodeContext.explorer.refresh();
-                vscode.commands.executeCommand('setContext', 'creatio.workspaceLoaded', true);
+                AppContext.explorer.refresh();
+                vscode.commands.executeCommand('setContext', 'bpmcode.workspaceLoaded', true);
             } else {
                 return ReloadStatus.progress;
             }
@@ -135,12 +135,12 @@ export class CreatioCodeContext {
             return ReloadStatus.error;
         }
 
-        let targetUri = vscode.Uri.file(CreatioCodeContext.fsHelper.getDataFolder());
+        let targetUri = vscode.Uri.file(AppContext.fsHelper.getDataFolder());
         let currentUri = vscode.workspace.workspaceFolders?.[0].uri;
     
         if (currentUri?.fsPath !== targetUri.fsPath) {
-            CreatioCodeUtils.createYesNoDialouge(
-                "Because of VsCode's limitations, you need to reload the workspace to use file search and then login again. Do you want to reload the workspace now?", async () => {
+            Utils.createYesNoDialouge(
+                "Because of VSCode's limitations, you need to reload the workspace to use file search and then login again. Do you want to reload the workspace now?", async () => {
                 await vscode.commands.executeCommand("vscode.openFolder", targetUri , false);
             });
         }

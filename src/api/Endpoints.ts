@@ -1,4 +1,4 @@
-import { SchemaType } from "./CreatioTypeDefinitions";
+import { SchemaType } from "./TypeDefinitions";
 
 /* eslint-disable @typescript-eslint/naming-convention */
 
@@ -101,7 +101,7 @@ export const Endpoints: EnumDictionary<ReqestType, string> =
     [ReqestType.EntitySchemaManagerRequest]: '/0/DataService/json/SyncReply/EntitySchemaManagerRequest',
     [ReqestType.RestartApp]: '/0/ServiceModel/AppInstallerService.svc/RestartApp',
     [ReqestType.ClearRedisDb]: '/0/ServiceModel/AppInstallerService.svc/ClearRedisDb',
-    [ReqestType.ExecuteSqlScript]: '/0/rest/CreatioApiGateway/ExecuteSqlScript',
+    [ReqestType.ExecuteSqlScript]: '/0/rest/BPMSoftApiGateway/ExecuteSqlScript',
     [ReqestType.PingWebHost]: '/0/api/HealthCheck/Ping',
     [ReqestType.PingWebApp]: '/api/HealthCheck/Ping',
     [ReqestType.GetPackageProperties]: '/0/ServiceModel/PackageService.svc/GetPackageProperties',

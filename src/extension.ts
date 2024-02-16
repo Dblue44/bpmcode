@@ -1,110 +1,107 @@
 import * as vscode from 'vscode';
-import { SchemaStructureDefinitionProvider, StructureViewProvider } from './modules/StructureView/StructureViewProvider';
-import { ObjectCompletionItemProvider } from './modules/Intellisense/ObjectCompletionItemProvider';
-import { CreatioCodeContext } from './globalContext';
-import { CreatioExplorerItem } from './modules/FileSystem/ExplorerItem';
+import { StructureViewProvider } from './modules/StructureView/StructureViewProvider';
+import { AppContext } from './globalContext';
+import { ExplorerItem } from './modules/FileSystem/ExplorerItem';
 
 function registerFileSystem(context: vscode.ExtensionContext) {
 	context.subscriptions.push(vscode.workspace.registerFileSystemProvider(
-		CreatioCodeContext.fileSystemName,
-		CreatioCodeContext.fsProvider,
+		AppContext.fileSystemName,
+		AppContext.fsProvider,
 		{ isCaseSensitive: true }
 	));
 
-	context.subscriptions.push(vscode.commands.registerCommand('creatiocode.createCreatioWorkspace', async () => {
-		CreatioCodeContext.createWorkspace(context);
+	context.subscriptions.push(vscode.commands.registerCommand('bpmcode.createWorkspace', async () => {
+		AppContext.createWorkspace(context);
 	}));
 
-	context.subscriptions.push(vscode.commands.registerCommand('creatiocode.reloadCreatioWorkspace', async () => {
-		CreatioCodeContext.reloadWorkSpace();
+	context.subscriptions.push(vscode.commands.registerCommand('bpmcode.reloadWorkspace', async () => {
+		AppContext.reloadWorkSpace();
 	}));
 }
 
 function registerContextMenus(context: vscode.ExtensionContext) {
-	context.subscriptions.push(vscode.commands.registerCommand('creatiocode.cacheFolder', function (folder: CreatioExplorerItem) {
-		CreatioCodeContext.fsProvider.cacheFolder(folder.resourceUri);
+	context.subscriptions.push(vscode.commands.registerCommand('bpmcode.cacheFolder', function (folder: ExplorerItem) {
+		AppContext.fsProvider.cacheFolder(folder.resourceUri);
 	}));
 
-	context.subscriptions.push(vscode.commands.registerCommand('creatiocode.revertSchema', async function (file: CreatioExplorerItem) {
-		await CreatioCodeContext.fsProvider.restoreSchema(file.resourceUri);
+	context.subscriptions.push(vscode.commands.registerCommand('bpmcode.revertSchema', async function (file: ExplorerItem) {
+		await AppContext.fsProvider.restoreSchema(file.resourceUri);
 	}));
 
-	context.subscriptions.push(vscode.commands.registerCommand('creatiocode.generateChanges', async (folder: CreatioExplorerItem) => {
-		await CreatioCodeContext.fsProvider.generateChanges(folder.resourceUri, context);
+	context.subscriptions.push(vscode.commands.registerCommand('bpmcode.generateChanges', async (folder: ExplorerItem) => {
+		await AppContext.fsProvider.generateChanges(folder.resourceUri, context);
 	}));
 
-	context.subscriptions.push(vscode.commands.registerCommand('creatiocode.pullChanges', async (folder: CreatioExplorerItem) => {
-		await CreatioCodeContext.fsProvider.generateChanges(folder.resourceUri, context);
+	context.subscriptions.push(vscode.commands.registerCommand('bpmcode.pullChanges', async (folder: ExplorerItem) => {
+		await AppContext.fsProvider.generateChanges(folder.resourceUri, context);
 	}));
 
-	
-
-	context.subscriptions.push(vscode.commands.registerCommand('creatiocode.clearCache', async function () {
-		await CreatioCodeContext.fsProvider.clearCache();
+	context.subscriptions.push(vscode.commands.registerCommand('bpmcode.clearCache', async function () {
+		await AppContext.fsProvider.clearCache();
 	}));
 
-	context.subscriptions.push(vscode.commands.registerCommand('creatiocode.lockSchema', async (file: CreatioExplorerItem) => {
-		CreatioCodeContext.fsProvider.lockSchema(file.resourceUri);
+	context.subscriptions.push(vscode.commands.registerCommand('bpmcode.lockSchema', async (file: ExplorerItem) => {
+		AppContext.fsProvider.lockSchema(file.resourceUri);
 	}));
 
-	context.subscriptions.push(vscode.commands.registerCommand('creatiocode.unlockSchema', async (file: CreatioExplorerItem) => {
-		CreatioCodeContext.fsProvider.unlockSchema(file.resourceUri);
+	context.subscriptions.push(vscode.commands.registerCommand('bpmcode.unlockSchema', async (file: ExplorerItem) => {
+		AppContext.fsProvider.unlockSchema(file.resourceUri);
 	}));
 
-	context.subscriptions.push(vscode.commands.registerCommand('creatiocode.reloadSchema', async (file: CreatioExplorerItem) => {
-		await CreatioCodeContext.fsProvider.reloadFile(file.resourceUri);
+	context.subscriptions.push(vscode.commands.registerCommand('bpmcode.reloadSchema', async (file: ExplorerItem) => {
+		await AppContext.fsProvider.reloadFile(file.resourceUri);
 	}));
 }
 
 function registerIntellisense(context: vscode.ExtensionContext) {
 	context.subscriptions.push(
-		vscode.languages.registerDefinitionProvider('javascript', CreatioCodeContext.schemaStructureDefinitionProvider)
+		vscode.languages.registerDefinitionProvider('javascript', AppContext.schemaStructureDefinitionProvider)
 	);
 
 	context.subscriptions.push(
-		vscode.languages.registerCompletionItemProvider('javascript', CreatioCodeContext.objectCompletionItemProvider, '.')
+		vscode.languages.registerCompletionItemProvider('javascript', AppContext.objectCompletionItemProvider, '.')
 	);
 
 	context.subscriptions.push(
-		vscode.languages.registerDefinitionProvider('javascript', CreatioCodeContext.definitionProvider)
+		vscode.languages.registerDefinitionProvider('javascript', AppContext.definitionProvider)
 	);
 
 	context.subscriptions.push(
-		vscode.languages.registerHoverProvider('javascript', CreatioCodeContext.hoverProvider)
+		vscode.languages.registerHoverProvider('javascript', AppContext.hoverProvider)
 	);
 
 	context.subscriptions.push(
-		vscode.languages.registerDocumentLinkProvider('javascript', CreatioCodeContext.commentDefinitionProvider)
+		vscode.languages.registerDocumentLinkProvider('javascript', AppContext.commentDefinitionProvider)
 	);
 }
 
 export function activate(context: vscode.ExtensionContext) {
-	CreatioCodeContext.init(context);
+	AppContext.init(context);
 	registerFileSystem(context);
 	registerContextMenus(context);
 
 	context.subscriptions.push(
-		vscode.window.registerWebviewViewProvider("creatioFileInfo", CreatioCodeContext.metadataProvider)
+		vscode.window.registerWebviewViewProvider("bpmsoftFileInfo", AppContext.metadataProvider)
 	);
 
 	context.subscriptions.push(
-		vscode.window.registerWebviewViewProvider("creatioInheritance", CreatioCodeContext.inheritanceProvider)
+		vscode.window.registerWebviewViewProvider("bpmsoftInheritance", AppContext.inheritanceProvider)
 	);
 
 	context.subscriptions.push(
-		vscode.window.registerTreeDataProvider("creatiocode.Explorer", CreatioCodeContext.explorer)
+		vscode.window.registerTreeDataProvider("bpmcode.Explorer", AppContext.explorer)
 	);
 
 	context.subscriptions.push(
-		vscode.window.registerTreeDataProvider("creatiocode.view.schemaTreeViewer", new StructureViewProvider())
+		vscode.window.registerTreeDataProvider("bpmcode.view.schemaTreeViewer", new StructureViewProvider())
 	);
 
 	context.subscriptions.push(
-		vscode.window.registerFileDecorationProvider(CreatioCodeContext.decorationProvider)
+		vscode.window.registerFileDecorationProvider(AppContext.decorationProvider)
 	);
 
 	context.subscriptions.push(
-		vscode.commands.registerCommand("creatiocode.schemaTreeViewer.reveal", (location) => {
+		vscode.commands.registerCommand("bpmcode.schemaTreeViewer.reveal", (location) => {
 			const editor = vscode.window.activeTextEditor;
 			if (!editor || !location) {
 				return;
@@ -125,30 +122,28 @@ export function activate(context: vscode.ExtensionContext) {
 	);
 
 	context.subscriptions.push(
-		vscode.commands.registerCommand("creatiocode.loadFile", async (uri) => {
+		vscode.commands.registerCommand("bpmcode.loadFile", async (uri) => {
 			await vscode.commands.executeCommand("vscode.open", uri);
 		})
 	);
 
 	context.subscriptions.push(
-		vscode.commands.registerCommand("creatiocode.build", async () => {
-			await CreatioCodeContext.fsProvider.build();
+		vscode.commands.registerCommand("bpmcode.build", async () => {
+			await AppContext.fsProvider.build();
 		})
 	);
 
 	context.subscriptions.push(
-		vscode.commands.registerCommand("creatiocode.rebuild", async () => {
-			await CreatioCodeContext.fsProvider.rebuild();
+		vscode.commands.registerCommand("bpmcode.rebuild", async () => {
+			await AppContext.fsProvider.rebuild();
 		})
 	);
 
 	context.subscriptions.push(
-		vscode.workspace.registerTextDocumentContentProvider("creatio-completion", CreatioCodeContext.intellisenseFsProv)
+		vscode.workspace.registerTextDocumentContentProvider("bpmsoft-completion", AppContext.intellisenseFsProv)
 	);
 
 	registerIntellisense(context);
-
-	
 }
 
 // This method is called when your extension is deactivated
