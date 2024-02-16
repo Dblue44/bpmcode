@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import * as vscode from 'vscode';
 import * as BPMSoft from './TypeDefinitions';
-import { retryAsync, wait } from 'ts-retry';
+import { retryAsync } from 'ts-retry';
 import { createAsyncQueue } from '../common/AsyncQueue';
 import { ConfigurationHelper } from '../common/ConfigurationHelper';
 import { ConnectionInfo } from './ConnectionInfo';
@@ -153,14 +153,6 @@ export class ApiClient {
 		return response;
 	}
 
-	async generateChanges(packageName: string): Promise<BPMSoft.PackageChangeEntry[] | null> {
-		const payload = {
-			"packageName": packageName
-		};
-		let response = await this.enqueueCommand<BPMSoft.GenerateChangesResponse>(ReqestType.GenerateChanges, payload);
-		return response ? response.changes : null;
-	}
-
 	async getWorkspaceItems(): Promise<Array<BPMSoft.WorkSpaceItem>> {
 		let response = await this.enqueueCommand<BPMSoft.GetWorkspaceItemsResponse>(ReqestType.GetWorkspaceItems);
 		return response ? response.items : [];
@@ -196,15 +188,6 @@ export class ApiClient {
 		return response;
 	}
 
-	async commit(packageName: string, logMessage: string) {
-		const payload = {
-			"packageName": packageName,
-			"logMessage": logMessage
-		};
-		let response = await this.enqueueCommand<BPMSoft.CommitResponse>(ReqestType.Commit, payload);
-		return response;
-	}
-
 	async getPackageState(packageName: string) {
 		const payload = {
 			"packageName": packageName,
@@ -217,14 +200,6 @@ export class ApiClient {
 		let response = await this.sendApiRequest(Endpoints[ReqestType.ExportSchema], workspaceItems);
 		var json = JSON.parse(response.body.replace(/(\r\n|\n|\r)/gm, ""));
 		return json;
-	}
-
-	async sourceControlUpdate(packageName: string) {
-		const payload = {
-			"packageName": packageName,
-		};
-		let response = await this.enqueueCommand<BPMSoft.GenerateChangesResponse>(ReqestType.Update, payload);
-		return response;
 	}
 
 	/**
