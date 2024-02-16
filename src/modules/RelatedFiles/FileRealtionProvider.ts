@@ -1,10 +1,8 @@
-import { ObjectProperty } from '@babel/types';
 import * as vscode from 'vscode';
-import { CreatioCodeContext } from '../../globalContext';
-import { MethodsEntry, ShemaAstStructure } from '../StructureView/CreatioAst';
-import * as babel from "@babel/types";
+import { AppContext } from '../../globalContext';
+import { MethodsEntry, ShemaAstStructure } from '../StructureView/StructureAst';
 
-export class CreatioSchemaRelation {
+export class SchemaRelation {
     constructor(path: vscode.Uri, ast: ShemaAstStructure) {
         this.mouduleUri = path;
         this.ast = ast;
@@ -35,10 +33,10 @@ export class UriDictionary<T> {
     }
 }
 
-export class CreatioFileRelationProvider {
+export class FileRelationProvider {
     constructor() {
         vscode.workspace.onDidOpenTextDocument((doc) => {
-            if (doc.uri.authority === CreatioCodeContext.fileSystemName) {
+            if (doc.uri.authority === AppContext.fileSystemName) {
                 vscode.window.withProgress({
                     "location": vscode.ProgressLocation.Window,
                     "title": `Loading ast`
@@ -53,14 +51,14 @@ export class CreatioFileRelationProvider {
         });
     }
 
-    protected schemaRelationCache: UriDictionary<CreatioSchemaRelation> = new UriDictionary<CreatioSchemaRelation>();
+    protected schemaRelationCache: UriDictionary<SchemaRelation> = new UriDictionary<SchemaRelation>();
 
     setAst(uri: vscode.Uri, ast: ShemaAstStructure) {
-        this.schemaRelationCache.set(uri, new CreatioSchemaRelation(ast.moduleUri, ast));
+        this.schemaRelationCache.set(uri, new SchemaRelation(ast.moduleUri, ast));
     }
 
     async loadAst(moduleUri: vscode.Uri) {
-        let contents = (await CreatioCodeContext.fsProvider.getFile(moduleUri, true)).schema?.body!;
+        let contents = (await AppContext.fsProvider.getFile(moduleUri, true)).schema?.body!;
         let ast = new ShemaAstStructure(contents);
         this.setAst(moduleUri, ast);
 
@@ -78,7 +76,7 @@ export class CreatioFileRelationProvider {
     }
 
     private async conditionalLoadAst(schemaName: string) {
-        let uris = CreatioCodeContext.fsProvider.getUriByName(schemaName);
+        let uris = AppContext.fsProvider.getUriByName(schemaName);
         if (uris.length > 0) {
             if (!this.schemaRelationCache.get(uris[0])) {
                 await this.loadAst(uris[0]);
@@ -97,23 +95,23 @@ export class CreatioFileRelationProvider {
 
         let methodDictionary: { [moduleName: string]: MethodsEntry[] } = {};
         if (!targetModule.parents) {
-            const file = CreatioCodeContext.fsProvider.getMemFile(moduleUri);
+            const file = AppContext.fsProvider.getMemFile(moduleUri);
             if (!file) {
                 throw new Error();
             }
 
             methodDictionary[moduleUri.toString()] = targetModule.ast.methods;
 
-            let parentFilesRequest = await CreatioCodeContext.fsProvider.getParentFiles(file, cToken);
+            let parentFilesRequest = await AppContext.fsProvider.getParentFiles(file, cToken);
             if (parentFilesRequest.cancelled) {
                 return null;
             }
 
             let parentFiles = parentFilesRequest.files;
-            targetModule.parents = parentFiles.map(file => CreatioCodeContext.fsHelper.getPath(file));
+            targetModule.parents = parentFiles.map(file => AppContext.fsHelper.getPath(file));
 
             parentFiles.forEach(async file => {
-                const uri = CreatioCodeContext.fsHelper.getPath(file);
+                const uri = AppContext.fsHelper.getPath(file);
                 const content = file.schema?.body;
                 if (uri !== moduleUri && content) {
                     let ast = new ShemaAstStructure(content);

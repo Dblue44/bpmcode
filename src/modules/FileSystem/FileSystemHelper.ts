@@ -3,14 +3,14 @@ import * as vscode from 'vscode';
 import * as os from 'os';
 import * as fs from 'fs';
 import { ConfigurationHelper } from '../../common/ConfigurationHelper';
-import { isSchema, isWorkspaceItem, Schema, WorkSpaceItem } from '../../creatio-api/CreatioTypeDefinitions';
-import { Entry, File, Directory } from './ExplorerItem';
+import { isWorkspaceItem, WorkSpaceItem } from '../../api/TypeDefinitions';
+import { Entry, File  } from './ExplorerItem';
 
 export class FileSystemHelper {
     root: string = "";
 
     getNameSpace(): vscode.Uri {
-        return vscode.Uri.joinPath(vscode.Uri.parse("creatio:/"), this.root);
+        return vscode.Uri.joinPath(vscode.Uri.parse("bpmsoft:/"), this.root);
     }
 
     getPath(entry: Entry | WorkSpaceItem): vscode.Uri {
@@ -134,7 +134,7 @@ export class FileSystemHelper {
     // Path construction
 
     get cacheFolder(): string {
-        return path.join(os.tmpdir(), "creatiocode");
+        return path.join(os.tmpdir(), "bpmcode");
     }
 
     getMetaDataFileFolder(uri: vscode.Uri): string {

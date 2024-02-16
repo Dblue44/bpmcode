@@ -1,6 +1,6 @@
-# creatiocode README
+# bpmcode README
 
-This Visual Studio Code extension allows to connect to Creatio web project and edit code.
+This Visual Studio Code extension allows to connect to BPMSoft Configurator and edit code.
 
 ## Feature showoff
 Autocompletion based on your own server setup
@@ -22,3 +22,4 @@ Goto dependency
 
 * File icon won't show if file was opened before connecting
 * Retry connection dialouge is created multiple times
+* Unsupported protocol message on http localhost connection

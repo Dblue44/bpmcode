@@ -1,35 +1,31 @@
 {
-  "name": "creatiocode",
-  "displayName": "CreatioCode",
-  "description": "VsCode integration with Creatio web editor",
-  "version": "0.7.1",
-  "repository": "https://github.com/LuckyOneDev/creatiocode",
-  "publisher": "LuckyOne",
+  "name": "bpmcode",
+  "displayName": "BPMCode",
+  "description": "VSCode integration with BPMSoft Configurator",
+  "version": "0.1.0",
+  "repository": "https://github.com/valuetype/bpmcode",
+  "publisher": "valuetype",
   "icon": "resources/media/icon.png",
   "engines": {
-    "vscode": "^1.73.1"
+    "vscode": "^1.75.0"
   },
   "categories": [
     "Other"
   ],
   "keywords": [
-    "Creatio",
+    "BPMSoft",
     "CRM"
   ],
   "activationEvents": [
     "onStartupFinished",
-    "onFileSystem:creatio",
-    "onCommand:creatiocode.createCreatioWorkspace",
-    "onCommand:creatiocode.reloadCreatioWorkspace",
-    "onCommand:creatiocode.clearCache",
-    "onWebviewPanel:creatiocode.loginPage",
-    "onView:creatioExplorer"
+    "onFileSystem:bpmcode",
+    "onWebviewPanel:bpmcode.loginPage"
   ],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
       {
-        "command": "creatiocode.build",
+        "command": "bpmcode.build",
         "title": "Build code on remote server",
         "icon": {
           "light": "resources/media/light/build.svg",
@@ -37,63 +33,63 @@
         }
       },
       {
-        "command": "creatiocode.rebuild",
+        "command": "bpmcode.rebuild",
         "title": "Rebuild everything"
       },
       {
-        "command": "creatiocode.createCreatioWorkspace",
-        "title": "New Creatio workspace",
+        "command": "bpmcode.createWorkspace",
+        "title": "New workspace",
         "icon": {
           "light": "resources/media/light/add.svg",
           "dark": "resources/media/dark/add.svg"
         }
       },
       {
-        "command": "creatiocode.generateChanges",
+        "command": "bpmcode.generateChanges",
         "title": "Push to SVN"
       },
       {
-        "command": "creatiocode.pullChanges",
+        "command": "bpmcode.pullChanges",
         "title": "Pull changes from SVN"
       },
       {
-        "command": "creatiocode.reloadCreatioWorkspace",
-        "title": "Reload Creatio workspace",
+        "command": "bpmcode.reloadWorkspace",
+        "title": "Reload workspace",
         "icon": {
           "light": "resources/media/light/reload.svg",
           "dark": "resources/media/dark/reload.svg"
         }
       },
       {
-        "command": "creatiocode.cacheFolder",
+        "command": "bpmcode.cacheFolder",
         "title": "Cache package"
       },
       {
-        "command": "creatiocode.clearCache",
-        "title": "Clear Creatio cache"
+        "command": "bpmcode.clearCache",
+        "title": "Clear cache"
       },
       {
-        "command": "creatiocode.revertSchema",
+        "command": "bpmcode.revertSchema",
         "title": "Revert"
       },
       {
-        "command": "creatiocode.schemaTreeViewer.reveal",
+        "command": "bpmcode.schemaTreeViewer.reveal",
         "title": "Schema Tree Viewer Reveal"
       },
       {
-        "command": "creatiocode.loadFile",
+        "command": "bpmcode.loadFile",
         "title": "Load file"
       },
       {
-        "command": "creatiocode.lockSchema",
+        "command": "bpmcode.lockSchema",
         "title": "Lock 🔒"
       },
       {
-        "command": "creatiocode.unlockSchema",
+        "command": "bpmcode.unlockSchema",
         "title": "Unlock 🔓"
       },
       {
-        "command": "creatiocode.reloadSchema",
+        "command": "bpmcode.reloadSchema",
         "title": "Reload",
         "icon": {
           "light": "resources/media/light/reload.svg",
@@ -104,55 +100,55 @@
     "menus": {
       "view/title": [
         {
-          "command": "creatiocode.reloadCreatioWorkspace",
-          "when": "view =~ /creatiocode.Explorer/",
+          "command": "bpmcode.reloadWorkspace",
+          "when": "view =~ /bpmcode.Explorer/",
           "group": "navigation"
         },
         {
-          "command": "creatiocode.createCreatioWorkspace",
-          "when": "view =~ /creatiocode.Explorer/",
+          "command": "bpmcode.createWorkspace",
+          "when": "view =~ /bpmcode.Explorer/",
           "group": "navigation"
         },
         {
-          "command": "creatiocode.build",
-          "when": "view =~ /creatiocode.Explorer/ && creatio.workspaceLoaded",
+          "command": "bpmcode.build",
+          "when": "view =~ /bpmcode.Explorer/ && bpmcode.workspaceLoaded",
           "group": "navigation"
         }
       ],
       "view/item/context": [
         {
-          "when": "view == creatiocode.Explorer && viewItem =~ /CreatioPackage/",
-          "command": "creatiocode.pullChanges",
+          "when": "view == bpmcode.Explorer && viewItem =~ /BPMSoftPackage/",
+          "command": "bpmcode.pullChanges",
           "group": "navigation@1"
         },
         {
-          "when": "view == creatiocode.Explorer && viewItem =~ /CreatioPackage/",
-          "command": "creatiocode.generateChanges",
+          "when": "view == bpmcode.Explorer && viewItem =~ /BPMSoftPackage/",
+          "command": "bpmcode.generateChanges",
           "group": "navigation@2"
         },
         {
-          "when": "view == creatiocode.Explorer && viewItem =~ /CreatioPackage/",
-          "command": "creatiocode.cacheFolder",
+          "when": "view == bpmcode.Explorer && viewItem =~ /BPMSoftPackage/",
+          "command": "bpmcode.cacheFolder",
           "group": "navigation@3"
         },
         {
-          "when": "view == creatiocode.Explorer && viewItem =~ /CreatioSchema/",
-          "command": "creatiocode.revertSchema",
+          "when": "view == bpmcode.Explorer && viewItem =~ /BPMSoftPackage/",
+          "command": "bpmcode.revertSchema",
           "group": "navigation"
         },
         {
-          "when": "view == creatiocode.Explorer && viewItem =~ /CreatioSchema/",
-          "command": "creatiocode.lockSchema",
+          "when": "view == bpmcode.Explorer && viewItem =~ /BPMSoftPackage/",
+          "command": "bpmcode.lockSchema",
           "group": "5_cutcopypaste"
         },
         {
-          "when": "view == creatiocode.Explorer && viewItem =~ /CreatioSchema/",
-          "command": "creatiocode.unlockSchema",
+          "when": "view == bpmcode.Explorer && viewItem =~ /BPMSoftPackage/",
+          "command": "bpmcode.unlockSchema",
           "group": "5_cutcopypaste"
         },
         {
-          "when": "view == creatiocode.Explorer && viewItem =~ /CreatioSchema/",
-          "command": "creatiocode.reloadSchema",
+          "when": "view == bpmcode.Explorer && viewItem =~ /BPMSoftPackage/",
+          "command": "bpmcode.reloadSchema",
           "group": "inline"
         }
       ]
@@ -160,160 +156,160 @@
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "creatiocode-Explorer",
-          "title": "Creatio Code",
-          "icon": "resources/media/creatio-explorer.svg"
+          "id": "bpmcode-Explorer",
+          "title": "BPMCode",
+          "icon": "resources/media/bpmsoft-explorer.svg"
         }
       ]
     },
     "views": {
-      "creatiocode-Explorer": [
+      "bpmcode-Explorer": [
         {
-          "id": "creatiocode.Explorer",
+          "id": "bpmcode.Explorer",
           "name": "Explorer"
         },
         {
           "type": "webview",
-          "id": "creatioFileInfo",
-          "name": "Creatio: File Info"
+          "id": "bpmsoftFileInfo",
+          "name": "File Info"
         },
         {
           "type": "webview",
-          "id": "creatioInheritance",
-          "name": "Creatio: File Inheritance"
+          "id": "bpmsoftInheritance",
+          "name": "File Inheritance"
         },
         {
           "type": "tree",
-          "id": "creatiocode.view.schemaTreeViewer",
-          "name": "Creatio: Schema Structure"
+          "id": "bpmcode.view.schemaTreeViewer",
+          "name": "Schema Structure"
         }
       ]
     },
     "viewsWelcome": [
       {
-        "view": "creatiocode.Explorer",
-        "contents": "Currently not connected to creatio web interface\n [Open connection panel](command:creatiocode.createCreatioWorkspace)"
+        "view": "bpmcode.Explorer",
+        "contents": "Currently not connected to BPMSoft Configurator\n [Open connection panel](command:bpmcode.createWorkspace)"
       }
     ],
     "configuration": {
-      "title": "Creatio Code",
+      "title": "BPMCode",
       "properties": {
-        "creatiocode.cachePath": {
+        "bpmcode.cachePath": {
           "type": "string",
           "default": "",
           "description": "Override defailt cache path (temp)"
         },
-        "creatiocode.regexEnabled": {
+        "bpmcode.regexEnabled": {
           "type": "boolean",
           "default": false,
           "description": "Regex matching enabled"
         },
-        "creatiocode.regex": {
+        "bpmcode.regex": {
           "type": "string",
           "default": "#(.*\\d)",
           "description": "Regex to match"
         },
-        "creatiocode.regexPath": {
+        "bpmcode.regexPath": {
           "type": "string",
           "default": "https://www.google.com/search?q=${0}",
           "description": "Regex to redirect to"
         },
-        "creatiocode.carefulMode": {
+        "bpmcode.carefulMode": {
           "type": "boolean",
           "default": "true",
           "description": "Check server version of file every time it is opened."
         },
-        "creatiocode.advancedIntellisense": {
+        "bpmcode.advancedIntellisense": {
           "type": "boolean",
           "default": "false",
           "description": "Load experimental intellisense (resource heavy)."
         },
-        "creatiocode.retryPolicy.attempts": {
+        "bpmcode.retryPolicy.attempts": {
           "type": "number",
           "default": "5",
           "description": "How many attempts to reconnect will be performed automatically."
         },
-        "creatiocode.retryPolicy.delay": {
+        "bpmcode.retryPolicy.delay": {
           "type": "number",
           "default": "1000",
           "description": "How long to wait before each continious attempt of calling server."
         },
-        "creatiocode.fileTypes.ClientUnit.Extension": {
+        "bpmcode.fileTypes.ClientUnit.Extension": {
           "type": "string",
           "default": ".js",
           "description": "File extension for Client Units."
         },
-        "creatiocode.fileTypes.SourceCode.Extension": {
+        "bpmcode.fileTypes.SourceCode.Extension": {
           "type": "string",
           "default": ".cs",
           "description": "File extension for Source Code."
         },
-        "creatiocode.fileTypes.ProcessUserTask.Extension": {
+        "bpmcode.fileTypes.ProcessUserTask.Extension": {
           "type": "string",
           "default": ".cs",
           "description": "File extension for Process User Task."
         },
-        "creatiocode.fileTypes.SqlScript.Extension": {
+        "bpmcode.fileTypes.SqlScript.Extension": {
           "type": "string",
           "default": ".sql",
           "description": "File extension for SqlScript."
         },
-        "creatiocode.fileTypes.Entity.Extension": {
+        "bpmcode.fileTypes.Entity.Extension": {
           "type": "string",
           "default": ".ent.json",
           "description": "File extension for Entity schemas."
         },
-        "creatiocode.fileTypes.Data.Extension": {
+        "bpmcode.fileTypes.Data.Extension": {
           "type": "string",
           "default": ".data.json",
           "description": "File extension for Binded Data."
         },
-        "creatiocode.fileTypes.Process.Extension": {
+        "bpmcode.fileTypes.Process.Extension": {
           "type": "string",
           "default": ".bp",
           "description": "File extension for Processes."
         },
-        "creatiocode.fileTypes.Case.Extension": {
+        "bpmcode.fileTypes.Case.Extension": {
           "type": "string",
           "default": ".case",
           "description": "File extension for Cases."
         },
-        "creatiocode.fileTypes.ClientUnit.Enabled": {
+        "bpmcode.fileTypes.ClientUnit.Enabled": {
           "type": "boolean",
           "default": true,
           "description": "Show client code (js) in file explorer."
         },
-        "creatiocode.fileTypes.SourceCode.Enabled": {
+        "bpmcode.fileTypes.SourceCode.Enabled": {
           "type": "boolean",
           "default": true,
           "description": "Show source code (c#) in file explorer."
         },
-        "creatiocode.fileTypes.SqlScript.Enabled": {
+        "bpmcode.fileTypes.SqlScript.Enabled": {
           "type": "boolean",
           "default": true,
           "description": "File extension for Cases."
         },
-        "creatiocode.fileTypes.ProcessUserTask.Enabled": {
+        "bpmcode.fileTypes.ProcessUserTask.Enabled": {
           "type": "boolean",
           "default": false,
           "description": "Show ProcessUserTask in file explorer."
         },
-        "creatiocode.fileTypes.Entity.Enabled": {
+        "bpmcode.fileTypes.Entity.Enabled": {
           "type": "boolean",
           "default": false,
           "description": "File extension for Cases."
         },
-        "creatiocode.fileTypes.Data.Enabled": {
+        "bpmcode.fileTypes.Data.Enabled": {
           "type": "boolean",
           "default": false,
           "description": "Show binded data in file explorer."
         },
-        "creatiocode.fileTypes.Process.Enabled": {
+        "bpmcode.fileTypes.Process.Enabled": {
           "type": "boolean",
           "default": false,
           "description": "Show processes in file explorer."
         },
-        "creatiocode.fileTypes.Case.Enabled": {
+        "bpmcode.fileTypes.Case.Enabled": {
           "type": "boolean",
           "default": false,
           "description": "Show cases in file explorer."
