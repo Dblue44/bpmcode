@@ -14,10 +14,9 @@ export class LoginPanel extends GenericWebViewPanel {
                 try {
                     let connectionInfo = new ConnectionInfo(message.connectionInfo.url, message.connectionInfo.login, message.connectionInfo.password);
                     if (connectionInfo.getHostName() === '') {
-                        vscode.window.showErrorMessage("Unable to parse url. Example: http://localhost:5000");
-                        // TODO: After login always showing message: Unsupported protocol, need research
-                    } else if (connectionInfo.getProtocol() !== 'http' || connectionInfo.getProtocol() !== 'https') {
-                        vscode.window.showErrorMessage("Unsupported protocol");
+                        throw new Error("Unable to parse url. Example: http://localhost:5000");
+                    } else if (connectionInfo.getProtocol() !== 'http:' && connectionInfo.getProtocol() !== 'https:') {
+                        throw new Error("Unsupported protocol");
                     }
 
                     ConfigurationHelper.setLoginData(connectionInfo);
@@ -31,6 +30,7 @@ export class LoginPanel extends GenericWebViewPanel {
                     return error;
                 }
                 break;
+
             case 'getLoginData':
                 this.postMessage(ConfigurationHelper.getLoginData() ? ConfigurationHelper.getLoginData() : {});
                 break;
