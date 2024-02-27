@@ -2,7 +2,7 @@
   "name": "bpmcode",
   "displayName": "BPMCode",
   "description": "VSCode integration with BPMSoft Configurator",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "repository": "https://github.com/valuetype/bpmcode",
   "publisher": "valuetype",
   "icon": "resources/media/icon.png",
@@ -73,14 +73,6 @@
         "title": "Load file"
       },
       {
-        "command": "bpmcode.lockSchema",
-        "title": "Lock 🔒"
-      },
-      {
-        "command": "bpmcode.unlockSchema",
-        "title": "Unlock 🔓"
-      },
-      {
         "command": "bpmcode.reloadSchema",
         "title": "Reload",
         "icon": {
@@ -117,16 +109,6 @@
           "when": "view == bpmcode.Explorer && viewItem =~ /BPMSoftPackage/",
           "command": "bpmcode.revertSchema",
           "group": "navigation"
-        },
-        {
-          "when": "view == bpmcode.Explorer && viewItem =~ /BPMSoftPackage/",
-          "command": "bpmcode.lockSchema",
-          "group": "5_cutcopypaste"
-        },
-        {
-          "when": "view == bpmcode.Explorer && viewItem =~ /BPMSoftPackage/",
-          "command": "bpmcode.unlockSchema",
-          "group": "5_cutcopypaste"
         },
         {
           "when": "view == bpmcode.Explorer && viewItem =~ /BPMSoftPackage/",
