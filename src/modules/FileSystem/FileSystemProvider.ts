@@ -211,51 +211,6 @@ export class FileSystemProvider implements vscode.FileSystemProvider {
             });
     }
 
-    unlockSchema(resourceUri: vscode.Uri) {
-        if (!AppContext.client.isConnected()) { 
-            throw new Error("Client not connected"); 
-        }
-
-        const memFile = this.getMemFile(resourceUri);
-        if (!memFile?.workSpaceItem) { return; }
-        vscode.window.withProgress(
-            {
-                "location": vscode.ProgressLocation.Notification,
-                "title": "Unlocking schema"
-            },
-            async (progress, token) => {
-                let response = await AppContext.client.unlockSchema([memFile?.workSpaceItem]);
-                if (response && response.success) {
-                    memFile.workSpaceItem.isLocked = false;
-                    await this.changeMemFile(resourceUri, memFile);
-                    this._fireSoon({ type: vscode.FileChangeType.Changed, uri: resourceUri });
-                    // vscode.window.showInformationMessage("Schema unlocked");
-                }
-            }
-        );
-    }
-
-    lockSchema(resourceUri: vscode.Uri) {
-        if (!AppContext.client) { return; }
-        const memFile = this.getMemFile(resourceUri);
-        if (!memFile?.workSpaceItem) { return; }
-        vscode.window.withProgress(
-            {
-                "location": vscode.ProgressLocation.Notification,
-                "title": "Locking schema"
-            },
-            async (progress, token) => {
-                let response = await AppContext.client!.lockSchema([memFile?.workSpaceItem]);
-                if (response && response.success) {
-                    memFile.workSpaceItem.isLocked = true;
-                    await this.changeMemFile(resourceUri, memFile);
-                    this._fireSoon({ type: vscode.FileChangeType.Changed, uri: resourceUri });
-                    // vscode.window.showInformationMessage("Schema locked");
-                }
-            }
-        );
-    }
-
     getUriByName(schemaName: string): vscode.Uri[] {
         let files = this.files.filter(x => x.name === `${schemaName}${ConfigurationHelper.getExtension(SchemaType.clientUnit)}`);
         return files.map(x => AppContext.fsHelper.getPath(x));

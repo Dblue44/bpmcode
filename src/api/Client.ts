@@ -143,16 +143,6 @@ export class ApiClient {
 		return response ? response.packages : [];
 	}
 
-	async unlockSchema(items: BPMSoft.WorkSpaceItem[]): Promise<BPMSoft.Response | null> {
-		let response = await this.enqueueCommand<BPMSoft.GetPackagesResponse>(ReqestType.UnlockPackageElements, items);
-		return response;
-	}
-
-	async lockSchema(items: BPMSoft.WorkSpaceItem[]): Promise<BPMSoft.Response | null> {
-		let response = await this.enqueueCommand<BPMSoft.GetPackagesResponse>(ReqestType.LockPackageElements, items);
-		return response;
-	}
-
 	async getWorkspaceItems(): Promise<Array<BPMSoft.WorkSpaceItem>> {
 		let response = await this.enqueueCommand<BPMSoft.GetWorkspaceItemsResponse>(ReqestType.GetWorkspaceItems);
 		return response ? response.items : [];
