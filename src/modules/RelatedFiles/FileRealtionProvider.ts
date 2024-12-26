@@ -34,6 +34,8 @@ export class UriDictionary<T> {
 }
 
 export class FileRelationProvider {
+    readonly _systemFiles = ["ext-base", "terrasoft", "jQuery", "sandbox"];
+
     constructor() {
         vscode.workspace.onDidOpenTextDocument((doc) => {
             if (doc.uri.authority === AppContext.fileSystemName) {
@@ -75,7 +77,19 @@ export class FileRelationProvider {
         return ast;
     }
 
+    private async cleanConditionalName(schemaName: string) {
+        if (schemaName.endsWith('Resources')) {
+            schemaName = schemaName.replace('Resources', '');
+        }
+        
+        return schemaName.replace('css!', '');
+    }
+
     private async conditionalLoadAst(schemaName: string) {
+        schemaName = await this.cleanConditionalName(schemaName);
+        if (this._systemFiles.includes(schemaName)) {
+            return;
+        }
         let uris = AppContext.fsProvider.getUriByName(schemaName);
         if (uris.length > 0) {
             if (!this.schemaRelationCache.get(uris[0])) {
@@ -85,6 +99,7 @@ export class FileRelationProvider {
             console.warn(`Uri ${schemaName} not found by name. It might lead to error.`);
         }
     }
+    
 
     async getMethodsInheritanceChain(moduleUri: vscode.Uri, cToken: vscode.CancellationToken) {
         const moduleName = moduleUri.path.split('/').pop()!.split('.')[0];
