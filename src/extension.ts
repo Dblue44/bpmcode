@@ -32,6 +32,14 @@ function registerContextMenus(context: vscode.ExtensionContext) {
 		await AppContext.fsProvider.clearCache();
 	}));
 
+	context.subscriptions.push(vscode.commands.registerCommand('bpmcode.lockSchema', async (file: ExplorerItem) => {
+		AppContext.fsProvider.lockSchema(file.resourceUri);
+	}));
+
+	context.subscriptions.push(vscode.commands.registerCommand('bpmcode.unlockSchema', async (file: ExplorerItem) => {
+		AppContext.fsProvider.unlockSchema(file.resourceUri);
+	}));
+
 	context.subscriptions.push(vscode.commands.registerCommand('bpmcode.reloadSchema', async (file: ExplorerItem) => {
 		await AppContext.fsProvider.reloadFile(file.resourceUri);
 	}));
