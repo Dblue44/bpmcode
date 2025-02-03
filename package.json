@@ -25,27 +25,11 @@
   "contributes": {
     "commands": [
       {
-        "command": "bpmcode.showLess",
-        "title": "Open .less for schema",
-        "icon": {
-          "light": "resources/media/light/less-light.svg",
-          "dark": "resources/media/dark/less-dark.svg"
-        }
-      },
-      {
         "command": "bpmcode.build",
         "title": "Build code on remote server",
         "icon": {
           "light": "resources/media/light/build.svg",
           "dark": "resources/media/dark/build.svg"
-        }
-      },
-      {
-        "command": "bpmcode.clearRedis",
-        "title": "Clear Redis",
-        "icon": {
-          "light": "resources/media/redis-logo-svgrepo-com.svg",
-          "dark": "resources/media/redis-logo-svgrepo-com.svg"
         }
       },
       {
@@ -100,11 +84,6 @@
     "menus": {
       "view/title": [
         {
-          "command": "bpmcode.clearRedis",
-          "when": "view =~ /bpmcode.Explorer/ && bpmcode.workspaceLoaded",
-          "group": "navigation"
-        },
-        {
           "command": "bpmcode.reloadWorkspace",
           "when": "view =~ /bpmcode.Explorer/",
           "group": "navigation"
@@ -135,13 +114,6 @@
           "when": "view == bpmcode.Explorer && viewItem =~ /BPMSoftPackage/",
           "command": "bpmcode.reloadSchema",
           "group": "inline"
-        }
-      ],
-      "editor/title": [
-        {
-          "command": "bpmcode.showLess",
-          "when": "resourceLangId == javascript && hasLessContent",
-          "group": "navigation"
         }
       ]
     },
