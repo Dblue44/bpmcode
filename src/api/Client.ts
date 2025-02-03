@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import * as vscode from 'vscode';
 import * as BPMSoft from './TypeDefinitions';
-import { retryAsync } from 'ts-retry';
+import { retryAsync, wait } from 'ts-retry';
 import { createAsyncQueue } from '../common/AsyncQueue';
 import { ConfigurationHelper } from '../common/ConfigurationHelper';
 import { ConnectionInfo } from './ConnectionInfo';
