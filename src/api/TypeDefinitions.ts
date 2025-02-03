@@ -85,6 +85,15 @@ export interface PackageChangeEntry {
 	uId: string;
 }
 
+export interface CommitResponse extends Response {
+	commitResult: Number;
+	commitResultName: string;
+}
+export interface GenerateChangesResponse extends Response {
+	changes: Array<PackageChangeEntry>;
+	errors: Array<any> | null;
+}
+
 export interface BuildResponse extends Response {
 	buildResult: number;
 	message: string;

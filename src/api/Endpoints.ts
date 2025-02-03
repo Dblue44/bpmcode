@@ -7,6 +7,7 @@ const locRU = 'ru-RU.json';
 const locEN = 'en-US.json';
 
 export enum ReqestType {
+    Commit,
     GetCurrentUserInfo,
     GetApplicationInfo,
     GetPackages,
@@ -38,6 +39,7 @@ export enum ReqestType {
     StopLogBroadcast,
     UnlockPackageElements,
     LockPackageElements,
+    GenerateChanges,
     Build,
     Rebuild,
     ClientUnitSchemaDesignerService,
@@ -78,6 +80,7 @@ export const DesignerServiceEndpoints: EnumDictionary<SchemaType, string> = {
 export const Endpoints: EnumDictionary<ReqestType, string> =
 {
     [ReqestType.Login]: '/ServiceModel/AuthService.svc/Login',
+    [ReqestType.Commit]: '/0/ServiceModel/SourceControlService.svc/Commit',
     [ReqestType.GetCurrentUserInfo]: '/0/ServiceModel/UserInfoService.svc/GetCurrentUserInfo',
     [ReqestType.GetApplicationInfo]: '/0/ServiceModel/ApplicationInfoService.svc/GetApplicationInfo',
     [ReqestType.GetPackages]: '/0/ServiceModel/PackageService.svc/GetPackages',
@@ -109,6 +112,7 @@ export const Endpoints: EnumDictionary<ReqestType, string> =
     [ReqestType.StopLogBroadcast]: '/0/rest/ATFLogService/ResetConfiguration',
     [ReqestType.UnlockPackageElements]: '/0/ServiceModel/SourceControlService.svc/UnlockPackageElements',
     [ReqestType.LockPackageElements]: '/0/ServiceModel/SourceControlService.svc/LockPackageElements',
+    [ReqestType.GenerateChanges]: '/0/ServiceModel/SourceControlService.svc/GenerateChanges',
     [ReqestType.Build]: '/0/ServiceModel/WorkspaceExplorerService.svc/Build',
     [ReqestType.Rebuild]: '/0/ServiceModel/WorkspaceExplorerService.svc/Rebuild',
     [ReqestType.GetZipPackages] : '/0/ServiceModel/PackageInstallerService.svc/GetZipPackages',

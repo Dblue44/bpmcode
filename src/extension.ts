@@ -28,6 +28,14 @@ function registerContextMenus(context: vscode.ExtensionContext) {
 		await AppContext.fsProvider.restoreSchema(file.resourceUri);
 	}));
 
+	context.subscriptions.push(vscode.commands.registerCommand('bpmcode.generateChanges', async (folder: ExplorerItem) => {
+		await AppContext.fsProvider.generateChanges(folder.resourceUri, context);
+	}));
+
+	context.subscriptions.push(vscode.commands.registerCommand('bpmcode.pullChanges', async (folder: ExplorerItem) => {
+		await AppContext.fsProvider.generateChanges(folder.resourceUri, context);
+	}));
+
 	context.subscriptions.push(vscode.commands.registerCommand('bpmcode.clearCache', async function () {
 		await AppContext.fsProvider.clearCache();
 	}));
