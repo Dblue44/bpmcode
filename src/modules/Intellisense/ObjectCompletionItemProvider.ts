@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import * as vscode from 'vscode';
 import { IntellisenseHelper } from './IntellisenseHelper';
+import { ScriptFetcher } from '../ScriptParsing/ScriptFetcher';
 
 export class ObjectCompletionItemProvider implements vscode.CompletionItemProvider<vscode.CompletionItem> {
     getParamNames(functionText: string): string[] {

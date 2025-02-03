@@ -1,5 +1,6 @@
+import * as vscode from 'vscode';
 import { WorkspaceItemViewProvider } from '../../common/WebView/WorkspaceItemViewProvider';
-import { File } from '../../modules/FileSystem/ExplorerItem';
+import { Entry, File, Directory } from '../../modules/FileSystem/ExplorerItem';
 
 export class SchemaMetaDataViewProvider extends WorkspaceItemViewProvider {
   styles = ['schemaMetaDataView.css'];

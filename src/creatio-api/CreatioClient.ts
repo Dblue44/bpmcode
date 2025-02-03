@@ -1,14 +1,14 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import * as vscode from 'vscode';
-import * as BPMSoft from './TypeDefinitions';
+import * as Creatio from './CreatioTypeDefinitions';
 import { retryAsync, wait } from 'ts-retry';
 import { createAsyncQueue } from '../common/AsyncQueue';
 import { ConfigurationHelper } from '../common/ConfigurationHelper';
 import { ConnectionInfo } from './ConnectionInfo';
-import { DesignerReqestType, DesignerServiceEndpoints, DesignerServiceMethods, Endpoints, ReqestType } from './Endpoints';
+import { DesignerReqestType, DesignerServiceEndpoints, DesignerServiceMethods, Endpoints, ReqestType } from './ApiEndpoints';
 import { HttpHelper } from '../common/HttpHelper';
 
-export class ApiClient {
+export class CreatioClient {
 	cookies: Array<string> = [];
 	connectionInfo?: ConnectionInfo;
 
@@ -38,7 +38,7 @@ export class ApiClient {
 		});
 	}
 
-	async retrySendApiRequest<ResponseType extends BPMSoft.Response>(path: string, postData: any = null): Promise<BPMSoft.ClientPostResponse<ResponseType>> {
+	async retrySendApiRequest<ResponseType extends Creatio.CreatioResponse>(path: string, postData: any = null): Promise<Creatio.ClientPostResponse<ResponseType>> {
 		if (!this.isConnected()) {
 			throw new Error("Client not connected");
 		}
@@ -65,8 +65,8 @@ export class ApiClient {
 		response.body = JSON.parse(response.body);
 
 		// Skip error handling for build response
-		if (BPMSoft.isBuildResponse(response.body)) {
-			return response as BPMSoft.ClientPostResponse<ResponseType>;
+		if (Creatio.isBuildResponse(response.body)) {
+			return response as Creatio.ClientPostResponse<ResponseType>;
 		}
 
 		if (response.body.success === false) {
@@ -74,10 +74,10 @@ export class ApiClient {
 			throw Error(response.body.errorInfo.message);
 		}
 
-		return response as BPMSoft.ClientPostResponse<ResponseType>;
+		return response as Creatio.ClientPostResponse<ResponseType>;
 	}
 
-	async enqueueRequest<ResponseType extends BPMSoft.Response>(endpoint: string, data?: any): Promise<ResponseType | null> {
+	async enqueueRequest<ResponseType extends Creatio.CreatioResponse>(endpoint: string, data?: any): Promise<ResponseType | null> {
 		try {
 			return this.requestQueue.push(async () => { return (await this.retrySendApiRequest<ResponseType>(endpoint, data)).body; });
 		} catch (err: any) {
@@ -87,7 +87,7 @@ export class ApiClient {
 		}
 	}
 
-	async enqueueCommand<ResponseType extends BPMSoft.Response>(type: ReqestType, data?: any): Promise<ResponseType | null> {
+	async enqueueCommand<ResponseType extends Creatio.CreatioResponse>(type: ReqestType, data?: any): Promise<ResponseType | null> {
 		try {
 			return this.requestQueue.push(async () => { return (await this.retrySendApiRequest<ResponseType>(Endpoints[type], data)).body; });
 		} catch (err: any) {
@@ -133,66 +133,66 @@ export class ApiClient {
 		return response ? true : false;
 	}
 
-	async revertElements(schemas: Array<BPMSoft.WorkSpaceItem>): Promise<BPMSoft.Response | null> {
-		let response = await this.enqueueCommand<BPMSoft.GetPackagesResponse>(ReqestType.RevertElements, schemas);
+	async revertElements(schemas: Array<Creatio.WorkSpaceItem>): Promise<Creatio.CreatioResponse | null> {
+		let response = await this.enqueueCommand<Creatio.GetPackagesResponse>(ReqestType.RevertElements, schemas);
 		return response;
 	}
 
-	async getPackages(): Promise<Array<BPMSoft.PackageMetaInfo>> {
-		let response = await this.enqueueCommand<BPMSoft.GetPackagesResponse>(ReqestType.GetPackages);
+	async getPackages(): Promise<Array<Creatio.PackageMetaInfo>> {
+		let response = await this.enqueueCommand<Creatio.GetPackagesResponse>(ReqestType.GetPackages);
 		return response ? response.packages : [];
 	}
 
-	async unlockSchema(items: BPMSoft.WorkSpaceItem[]): Promise<BPMSoft.Response | null> {
-		let response = await this.enqueueCommand<BPMSoft.GetPackagesResponse>(ReqestType.UnlockPackageElements, items);
+	async unlockSchema(items: Creatio.WorkSpaceItem[]): Promise<Creatio.CreatioResponse | null> {
+		let response = await this.enqueueCommand<Creatio.GetPackagesResponse>(ReqestType.UnlockPackageElements, items);
 		return response;
 	}
 
-	async lockSchema(items: BPMSoft.WorkSpaceItem[]): Promise<BPMSoft.Response | null> {
-		let response = await this.enqueueCommand<BPMSoft.GetPackagesResponse>(ReqestType.LockPackageElements, items);
+	async lockSchema(items: Creatio.WorkSpaceItem[]): Promise<Creatio.CreatioResponse | null> {
+		let response = await this.enqueueCommand<Creatio.GetPackagesResponse>(ReqestType.LockPackageElements, items);
 		return response;
 	}
 
-	async generateChanges(packageName: string): Promise<BPMSoft.PackageChangeEntry[] | null> {
+	async generateChanges(packageName: string): Promise<Creatio.PackageChangeEntry[] | null> {
 		const payload = {
 			"packageName": packageName
 		};
-		let response = await this.enqueueCommand<BPMSoft.GenerateChangesResponse>(ReqestType.GenerateChanges, payload);
+		let response = await this.enqueueCommand<Creatio.GenerateChangesResponse>(ReqestType.GenerateChanges, payload);
 		return response ? response.changes : null;
 	}
 
-	async getWorkspaceItems(): Promise<Array<BPMSoft.WorkSpaceItem>> {
-		let response = await this.enqueueCommand<BPMSoft.GetWorkspaceItemsResponse>(ReqestType.GetWorkspaceItems);
+	async getWorkspaceItems(): Promise<Array<Creatio.WorkSpaceItem>> {
+		let response = await this.enqueueCommand<Creatio.GetWorkspaceItemsResponse>(ReqestType.GetWorkspaceItems);
 		return response ? response.items : [];
 	}
 
-	private getDesignerServicePath(type: BPMSoft.SchemaType, methodType: DesignerReqestType): string {
+	private getDesignerServicePath(type: Creatio.SchemaType, methodType: DesignerReqestType): string {
 		return `${DesignerServiceEndpoints[type]}${DesignerServiceMethods[methodType]}`;
 	}
 
-	async getSchema(schemaUId: string, type: BPMSoft.SchemaType): Promise<BPMSoft.Schema | null> {
+	async getSchema(schemaUId: string, type: Creatio.SchemaType): Promise<Creatio.Schema | null> {
 		const payload = {
 			"schemaUId": schemaUId
 		};
 
 		let svcPath = this.getDesignerServicePath(type, DesignerReqestType.GetSchema);
 
-		let response = await this.enqueueRequest<BPMSoft.GetSchemaResponse>(svcPath, payload);
+		let response = await this.enqueueRequest<Creatio.GetSchemaResponse>(svcPath, payload);
 		return response ? response.schema : null;
 	}
 
-	async saveSchema(schema: BPMSoft.Schema, type: BPMSoft.SchemaType): Promise<BPMSoft.SaveSchemaResponse | null> {
+	async saveSchema(schema: Creatio.Schema, type: Creatio.SchemaType): Promise<Creatio.SaveSchemaResponse | null> {
 		let svcPath = this.getDesignerServicePath(type, DesignerReqestType.SaveSchema);
-		return await this.enqueueRequest<BPMSoft.SaveSchemaResponse>(svcPath, schema);
+		return await this.enqueueRequest<Creatio.SaveSchemaResponse>(svcPath, schema);
 	}
 
-	async build(): Promise<BPMSoft.BuildResponse | null> {
-		let response = await this.enqueueCommand<BPMSoft.BuildResponse>(ReqestType.Build);
+	async build(): Promise<Creatio.BuildResponse | null> {
+		let response = await this.enqueueCommand<Creatio.BuildResponse>(ReqestType.Build);
 		return response;
 	}
 
-	async rebuild(): Promise<BPMSoft.BuildResponse | null> {
-		let response = await this.enqueueCommand<BPMSoft.BuildResponse>(ReqestType.Rebuild);
+	async rebuild(): Promise<Creatio.BuildResponse | null> {
+		let response = await this.enqueueCommand<Creatio.BuildResponse>(ReqestType.Rebuild);
 		return response;
 	}
 
@@ -201,7 +201,7 @@ export class ApiClient {
 			"packageName": packageName,
 			"logMessage": logMessage
 		};
-		let response = await this.enqueueCommand<BPMSoft.CommitResponse>(ReqestType.Commit, payload);
+		let response = await this.enqueueCommand<Creatio.CommitResponse>(ReqestType.Commit, payload);
 		return response;
 	}
 
@@ -209,11 +209,11 @@ export class ApiClient {
 		const payload = {
 			"packageName": packageName,
 		};
-		let response = await this.enqueueCommand<BPMSoft.GetPackageStateResponse>(ReqestType.GetPackageState, payload);
+		let response = await this.enqueueCommand<Creatio.GetPackageStateResponse>(ReqestType.GetPackageState, payload);
 		return response;
 	}
 
-	async exportSchema(workspaceItems: BPMSoft.WorkSpaceItem[]): Promise<BPMSoft.ExportSchema> {
+	async exportSchema(workspaceItems: Creatio.WorkSpaceItem[]): Promise<Creatio.ExportSchema> {
 		let response = await this.sendApiRequest(Endpoints[ReqestType.ExportSchema], workspaceItems);
 		var json = JSON.parse(response.body.replace(/(\r\n|\n|\r)/gm, ""));
 		return json;
@@ -223,7 +223,7 @@ export class ApiClient {
 		const payload = {
 			"packageName": packageName,
 		};
-		let response = await this.enqueueCommand<BPMSoft.GenerateChangesResponse>(ReqestType.Update, payload);
+		let response = await this.enqueueCommand<Creatio.GenerateChangesResponse>(ReqestType.Update, payload);
 		return response;
 	}
 
@@ -231,7 +231,7 @@ export class ApiClient {
 	 * UNUSED. METHODS IN DEVELOPMENT
 	 */
 	private async getZipPackages(packageNames: string[]) {
-		let response = await this.enqueueCommand<BPMSoft.Response>(ReqestType.GetZipPackages, packageNames);
+		let response = await this.enqueueCommand<Creatio.CreatioResponse>(ReqestType.GetZipPackages, packageNames);
 		return response;
 	}
 
@@ -239,7 +239,7 @@ export class ApiClient {
 		const payload = {
 			"script": sql
 		};
-		let response = await this.retrySendApiRequest<BPMSoft.Response>('/0/DataService/json/SyncReply/SelectQuery', payload);
+		let response = await this.retrySendApiRequest<Creatio.CreatioResponse>('/0/DataService/json/SyncReply/SelectQuery', payload);
 		return response?.body;
 	}
 
@@ -260,6 +260,7 @@ export class ApiClient {
 			return err;
 		}
 	}
+
 
 	/**
 	  * 

@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
-import { ShemaStructureNode } from "./StructureAst";
-import { AppContext } from "../../globalContext";
+import { ShemaStructureNode, ShemaAstStructure } from "./CreatioAst";
+import { CreatioCodeContext } from "../../globalContext";
 
 export class SchemaStructureDefinitionProvider implements vscode.DefinitionProvider {
 	// referenceIndex: Map<vscode.TextDocument, Map<vscode.Position, vscode.Uri>> = new Map();
@@ -9,7 +9,7 @@ export class SchemaStructureDefinitionProvider implements vscode.DefinitionProvi
 		return new Promise((resolve, reject) => {
 			let fileName = document.getText(document.getWordRangeAtPosition(position));
 			// Temporary fast search
-			let files = AppContext.fsProvider.getUriByName(fileName);
+			let files = CreatioCodeContext.fsProvider.getUriByName(fileName);
 			if (files.length > 0) {
 				// @ts-ignore
 				resolve(new vscode.Location(files.find(x => x.path !== document.uri.path) || files[0], new vscode.Position(0, 0)));
@@ -18,8 +18,8 @@ export class SchemaStructureDefinitionProvider implements vscode.DefinitionProvi
 			}
 			 
 			// REALLY LONG F*CKING SEARCH
-			// StatusBar.animate("Trying to find file...");
-			// FS.getInstance().getUriByName(fileName, token).then(files => {
+			// CreatioStatusBar.animate("Trying to find file...");
+			// CreatioFS.getInstance().getUriByName(fileName, token).then(files => {
 			// 	if (files.length > 0) {
 			// 		resolve(new vscode.Location(files[files.length - 1], new vscode.Position(0, 0)));
 			// 	} else {
@@ -28,7 +28,7 @@ export class SchemaStructureDefinitionProvider implements vscode.DefinitionProvi
 			// }).catch(err => {
 			// 	resolve(undefined);
 			// }).finally(() => {
-			// 	StatusBar.update("Loading stopped");
+			// 	CreatioStatusBar.update("Loading stopped");
 			// });
 		});
 	}
@@ -44,7 +44,7 @@ class SchemaStructureTreeItem extends vscode.TreeItem {
 		this.tooltip = node.tooltip || node.name;
 		if (node.location) {
 			this.command = {
-				command: "bpmcode.schemaTreeViewer.reveal",
+				command: "creatiocode.schemaTreeViewer.reveal",
 				title: "Reveal",
 				arguments: [node.location]
 			};
@@ -84,7 +84,7 @@ export class StructureViewProvider implements vscode.TreeDataProvider<SchemaStru
 			if (currentDocument) {
 				try {
 					
-					let ast = await AppContext.fileRelationProvider.loadAst(currentDocument.uri);
+					let ast = await CreatioCodeContext.creatioFileRelationProvider.loadAst(currentDocument.uri);
 					let treeItems = ast.getAsNodes().map(node => new SchemaStructureTreeItem(node));
 					return treeItems;
 				} catch (e) {

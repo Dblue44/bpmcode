@@ -1,11 +1,11 @@
 import { RetryOptions } from 'ts-retry';
 import * as vscode from 'vscode';
-import { ConnectionInfo } from '../api/ConnectionInfo';
-import { SchemaType } from '../api/TypeDefinitions';
-import { AppContext } from '../globalContext';
+import { ConnectionInfo } from '../creatio-api/ConnectionInfo';
+import { SchemaType } from '../creatio-api/CreatioTypeDefinitions';
+import { CreatioCodeContext } from '../globalContext';
 
 export class ConfigurationHelper {
-    static config: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration("bpmcode");
+    static config: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration("creatiocode");
     static getSchemaTypeByExtension(path: string): SchemaType {
         let extension = path.split('.').pop();
         switch (extension) {
@@ -81,7 +81,7 @@ export class ConfigurationHelper {
     }
 
     static getLoginData(): ConnectionInfo | undefined {
-        let loginData: ConnectionInfo | undefined = AppContext.extensionContext.globalState.get("loginData");
+        let loginData: ConnectionInfo | undefined = CreatioCodeContext.extensionContext.globalState.get("loginData");
         if (loginData) {
            return new ConnectionInfo(loginData.url, loginData.login, loginData.password);
         }
@@ -89,7 +89,7 @@ export class ConfigurationHelper {
     }
 
     static setLoginData(loginData: ConnectionInfo) {
-        AppContext.extensionContext.globalState.update("loginData", loginData);
+        CreatioCodeContext.extensionContext.globalState.update("loginData", loginData);
     }
 
     static isCarefulMode(): boolean {

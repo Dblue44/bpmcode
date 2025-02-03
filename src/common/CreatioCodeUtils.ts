@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
-import { AppContext } from '../globalContext';
+import { CreatioCodeContext } from '../globalContext';
 
-export class Utils {
+export class CreatioCodeUtils {
     static async closeFileIfOpen(file:vscode.Uri) : Promise<void> {
         const tabs: vscode.Tab[] = vscode.window.tabGroups.all.map(tg => tg.tabs).flat();
         const index = tabs.findIndex(tab => tab.input instanceof vscode.TabInputText && tab.input.uri.path === file.path);
@@ -14,7 +14,7 @@ export class Utils {
         return new Promise((resolve) => {
             vscode.window.showInformationMessage("Client is not connected. Reconnect?", "Reconnect").then(async value => {
                 if (value === "Reconnect") {
-                    await AppContext.reloadWorkSpace();
+                    await CreatioCodeContext.reloadWorkSpace();
                     resolve(callbackYes());
                 } else {
                     return callbackNo();

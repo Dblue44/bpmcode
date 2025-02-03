@@ -1,10 +1,10 @@
-type Callback<T> = () => Promise<T>;
+type Callback<T> = () => Promise<T>
 
 export type AsyncQueue<T = void> = {
   push: (task: Callback<T>) => Promise<T>
   flush: () => Promise<void>
   size: number
-};
+}
 
 /**
  * Ensures that each callback pushed onto the queue is executed in series.
@@ -22,67 +22,64 @@ export type AsyncQueue<T = void> = {
  * ```
  * */
 export function createAsyncQueue<T = void>(opts = { dedupeConcurrent: false }): AsyncQueue<T> {
-  const { dedupeConcurrent } = opts;
-  let queue: Callback<T>[] = [];
-  let running: Promise<void> | undefined;
-  let nextPromise = new DeferredPromise<T>();
-  
+  const { dedupeConcurrent } = opts
+  let queue: Callback<T>[] = []
+  let running: Promise<void> | undefined
+  let nextPromise = new DeferredPromise<T>()
   const push = (task: Callback<T>) => {
-    let taskPromise = new DeferredPromise<T>();
+    let taskPromise = new DeferredPromise<T>()
     if (dedupeConcurrent) {
-      queue = [];
-      if (nextPromise.started) {nextPromise = new DeferredPromise<T>();}
-      taskPromise = nextPromise;
+      queue = []
+      if (nextPromise.started) nextPromise = new DeferredPromise<T>()
+      taskPromise = nextPromise
     }
     queue.push(() => {
-      taskPromise.started = true;
-      task().then(taskPromise.resolve).catch(taskPromise.reject);
-      return taskPromise.promise;
-    });
-    if (!running) {running = start();}
-    return taskPromise.promise;
-  };
-
+      taskPromise.started = true
+      task().then(taskPromise.resolve).catch(taskPromise.reject)
+      return taskPromise.promise
+    })
+    if (!running) running = start()
+    return taskPromise.promise
+  }
   const start = async () => {
     while (queue.length) {
-      const task = queue.shift()!;
-      await task().catch(() => {});
+      const task = queue.shift()!
+      await task().catch(() => {})
     }
-    running = undefined;
-  };
-
+    running = undefined
+  }
   return {
     push,
     flush: () => running || Promise.resolve(),
     get size() {
-      return queue.length;
+      return queue.length
     },
-  };
+  }
 }
 
 export const createAsyncQueues = <T = void>(opts = { dedupeConcurrent: false }) => {
-  const queues: { [queueId: string]: AsyncQueue<T> } = {};
+  const queues: { [queueId: string]: AsyncQueue<T> } = {}
   const push = (queueId: string, task: Callback<T>) => {
-    if (!queues[queueId]) {queues[queueId] = createAsyncQueue<T>(opts);}
-    return queues[queueId].push(task);
-  };
+    if (!queues[queueId]) queues[queueId] = createAsyncQueue<T>(opts)
+    return queues[queueId].push(task)
+  }
   const flush = (queueId: string) => {
-    if (!queues[queueId]) {queues[queueId] = createAsyncQueue<T>(opts);}
-    return queues[queueId].flush();
-  };
-  return { push, flush };
-};
+    if (!queues[queueId]) queues[queueId] = createAsyncQueue<T>(opts)
+    return queues[queueId].flush()
+  }
+  return { push, flush }
+}
 
 class DeferredPromise<T = void, E = any> {
-  started = false;
-  resolve: (x: T | PromiseLike<T>) => void = () => {};
-  reject: (x: E) => void = () => {};
-  promise: Promise<T>;
+  started = false
+  resolve: (x: T | PromiseLike<T>) => void = () => {}
+  reject: (x: E) => void = () => {}
+  promise: Promise<T>
 
   constructor() {
     this.promise = new Promise<T>((res, rej) => {
-      this.resolve = res;
-      this.reject = rej;
-    });
+      this.resolve = res
+      this.reject = rej
+    })
   }
 }

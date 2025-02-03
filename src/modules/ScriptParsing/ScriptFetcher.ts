@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import * as http from 'http';
 import * as vm from 'vm';
+import { CreatioFileSystemProvider } from '../FileSystem/CreatioFileSystemProvider';
 import beautify from 'js-beautify';
 import browserEnv from '@ikscodes/browser-env';
-import { AppContext } from '../../globalContext';
+import { CreatioCodeContext } from '../../globalContext';
 
 
 export class ScriptFetcher {
@@ -56,12 +57,12 @@ export class ScriptFetcher {
 
     private static async loadScript(path: string): Promise<string> {
         return new Promise((resolve, reject) => {
-            if (!AppContext.client.isConnected()) {
+            if (!CreatioCodeContext.client.isConnected()) {
                 reject("Client not connected");
             }
 
             const options: http.RequestOptions = {
-                host: AppContext.client.connectionInfo!.getHostName(),
+                host: CreatioCodeContext.client.connectionInfo!.getHostName(),
                 path: path,
                 method: 'GET',
             };
@@ -98,12 +99,12 @@ export class ScriptFetcher {
 
     private static async loadAllScripts(url: string): Promise<string[]> {
         const basePage = await this.loadPage(url);
-        const scriptSrcs = await this.getPageScripts(basePage);
+        const scriptSrcs = await this.getPageScrpts(basePage);
         const scripts = await this.loadScripts(scriptSrcs);
         return scripts;
     }
 
-    private static getPageScripts(page: string): string[] {
+    private static getPageScrpts(page: string): string[] {
         let scriptTags = page.match(/<script.*?src=".*?".*?<\/script>/g);
         if (!scriptTags) {
             return [];
@@ -125,12 +126,12 @@ export class ScriptFetcher {
 
     private static loadPage(path: string): Promise<string> {
         return new Promise((resolve, reject) => {
-            if (!AppContext.client.isConnected()) {
+            if (!CreatioCodeContext.client.isConnected()) {
                 reject("Client not connected");
             }
 
             const options: http.RequestOptions = {
-                host: AppContext.client.connectionInfo!.getHostName(),
+                host: CreatioCodeContext.client.connectionInfo!.getHostName(),
                 path: path,
                 method: 'GET',
                 headers: {
@@ -138,7 +139,7 @@ export class ScriptFetcher {
                     'Accept-Language': "ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7",
                     "cache-control": "max-age=0",
                     "upgrade-insecure-requests": "1",
-                    "Cookie": AppContext.client?.cookies.join(';'),
+                    "Cookie": CreatioCodeContext.client?.cookies.join(';'),
                     "Connection": "keep-alive",
                 },
             };

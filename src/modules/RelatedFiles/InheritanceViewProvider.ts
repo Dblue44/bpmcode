@@ -1,8 +1,8 @@
 import * as vscode from 'vscode';
-import { File } from '../../modules/FileSystem/ExplorerItem';
-import { WorkSpaceItem } from '../../api/TypeDefinitions';
+import { Entry, File, Directory } from '../../modules/FileSystem/ExplorerItem';
+import { WorkSpaceItem } from '../../creatio-api/CreatioTypeDefinitions';
 import { WorkspaceItemViewProvider } from '../../common/WebView/WorkspaceItemViewProvider';
-import { AppContext } from '../../globalContext';
+import { CreatioCodeContext } from '../../globalContext';
 
 export class InheritanceViewProvider extends WorkspaceItemViewProvider {
     scripts = ['inheritanceView.js'];
@@ -17,8 +17,8 @@ export class InheritanceViewProvider extends WorkspaceItemViewProvider {
     constructor() {
         super();
         vscode.window.onDidChangeActiveTextEditor(async (editor) => {
-            if (editor?.document.uri.authority === AppContext.fileSystemName) { 
-                const file = await AppContext.fsProvider.getFile(editor.document.uri);
+            if (editor?.document.uri.authority === CreatioCodeContext.fileSystemName) { 
+                const file = await CreatioCodeContext.fsProvider.getFile(editor.document.uri);
                 this.postMessage({
                     command: "changeSelection",
                     schemaId: file.workSpaceItem?.uId
@@ -30,7 +30,7 @@ export class InheritanceViewProvider extends WorkspaceItemViewProvider {
     protected onDidReceiveMessage = (message: any) => {
         switch (message.command) {
             case 'openSchema':
-                const uri = AppContext.fsProvider.getSchemaUri(message.id);
+                const uri = CreatioCodeContext.fsProvider.getSchemaUri(message.id);
                 vscode.workspace.openTextDocument(uri!).then(document => {
                     vscode.window.showTextDocument(document);
                 });
@@ -57,11 +57,11 @@ export class InheritanceViewProvider extends WorkspaceItemViewProvider {
             this.cancelationTokenSource = new vscode.CancellationTokenSource();
 
             // Get parent files and write them to filesystem
-            AppContext.fsProvider.getParentFiles(this.currentFile, this.cancelationTokenSource.token).then((resp) => {
+            CreatioCodeContext.fsProvider.getParentFiles(this.currentFile, this.cancelationTokenSource.token).then((resp) => {
                 this.files = resp.files;
                 if (!resp.cancelled) {
                     this.reloadWebview();
-                    AppContext.fsHelper.writeFiles(resp.files);
+                    CreatioCodeContext.fsHelper.writeFiles(resp.files);
                 }
             });
             return `<span class="loader"></span>`;

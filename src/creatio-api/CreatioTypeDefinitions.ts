@@ -47,17 +47,17 @@ export interface PackageMetaInfo {
 	version: string;
 }
 
-export interface Response {
+export interface CreatioResponse {
 	errorInfo: null | ErrorInfo;
 	success: boolean;
 }
 
-export interface GetPackageStateResponse extends Response {
+export interface GetPackageStateResponse extends CreatioResponse {
 	hasForeignLock: boolean;
 	isOutdated: boolean;
 }
 
-export interface GetPackagesResponse extends Response {
+export interface GetPackagesResponse extends CreatioResponse {
 	packages: Array<PackageMetaInfo>;
 }
 
@@ -85,30 +85,30 @@ export interface PackageChangeEntry {
 	uId: string;
 }
 
-export interface CommitResponse extends Response {
+export interface CommitResponse extends CreatioResponse {
 	commitResult: Number;
 	commitResultName: string;
 }
-export interface GenerateChangesResponse extends Response {
+export interface GenerateChangesResponse extends CreatioResponse {
 	changes: Array<PackageChangeEntry>;
 	errors: Array<any> | null;
 }
 
-export interface BuildResponse extends Response {
+export interface BuildResponse extends CreatioResponse {
 	buildResult: number;
 	message: string;
 	errors: Array<any> | null;
 }
 
-export interface GetWorkspaceItemsResponse extends Response {
+export interface GetWorkspaceItemsResponse extends CreatioResponse {
 	items: Array<WorkSpaceItem>;
 }
 
-export interface GetSchemaResponse extends Response {
+export interface GetSchemaResponse extends CreatioResponse {
 	schema: Schema;
 }
 
-export interface SaveSchemaResponse extends Response {
+export interface SaveSchemaResponse extends CreatioResponse {
 	buildResult: Number;
 	errorInfo: null | any;
 	errors: null | any;
@@ -241,7 +241,7 @@ export function isBuildResponse(object: any): object is BuildResponse {
 }
 
 
-export class ClientPostResponse<ResponseType extends Response> {
+export class ClientPostResponse<ResponseType extends CreatioResponse> {
 	body: ResponseType;
 	response: http.IncomingMessage;
 	constructor(body: any, response: http.IncomingMessage) {

@@ -1,15 +1,15 @@
 import * as vscode from 'vscode';
 import { GenericWebViewProvider } from './GenericWebViewProvider';
-import { AppContext } from '../../globalContext';
-import { File } from '../../modules/FileSystem/ExplorerItem';
+import { CreatioCodeContext } from '../../globalContext';
+import { Entry, File, Directory } from '../../modules/FileSystem/ExplorerItem';
 
 export abstract class WorkspaceItemViewProvider extends GenericWebViewProvider {
   currentFile?: File;
   constructor() {
     super();
     vscode.window.onDidChangeActiveTextEditor(x => {
-      if (x?.document.uri.scheme === 'bpmsoft') {
-        let file = AppContext.fsProvider.getMemFile(x.document.uri);
+      if (x?.document.uri.scheme === 'creatio') {
+        let file = CreatioCodeContext.fsProvider.getMemFile(x.document.uri);
         if (file) {
           this.setItem(file);
         }
@@ -17,8 +17,8 @@ export abstract class WorkspaceItemViewProvider extends GenericWebViewProvider {
     });
 
     vscode.workspace.onDidOpenTextDocument(x => {
-      if (x.uri.scheme === 'bpmsoft') {
-        let file = AppContext.fsProvider.getMemFile(x.uri);
+      if (x.uri.scheme === 'creatio') {
+        let file = CreatioCodeContext.fsProvider.getMemFile(x.uri);
         if (file) {
           this.setItem(file);
         }

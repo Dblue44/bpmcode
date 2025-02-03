@@ -1,12 +1,17 @@
+import { GenericWebViewProvider } from "../../common/WebView/GenericWebViewProvider";
 import * as vscode from 'vscode';
+import { CreatioClient } from "../../creatio-api/CreatioClient";
 import { ConfigurationHelper } from "../../common/ConfigurationHelper";
-import { ConnectionInfo } from "../../api/ConnectionInfo";
+import path from "path";
+import { CreatioFileSystemProvider } from "../FileSystem/CreatioFileSystemProvider";
+import { ConnectionInfo } from "../../creatio-api/ConnectionInfo";
+import { CreatioCodeUtils } from "../../common/CreatioCodeUtils";
 import { GenericWebViewPanel } from "../../common/WebView/GenericWebViewPanel";
-import { AppContext } from "../../globalContext";
+import { CreatioCodeContext } from "../../globalContext";
 
-export class LoginPanel extends GenericWebViewPanel {
-    protected webViewId = "bpmcode.LoginPanel";
-    protected title = "Login";
+export class CreatioLoginPanel extends GenericWebViewPanel {
+    protected webViewId = "creatiocode.creatioLoginPanel";
+    protected title = "Creatio Login";
     
     protected onDidReceiveMessage = async (message: any) => {
         switch (message.command) {
@@ -14,16 +19,15 @@ export class LoginPanel extends GenericWebViewPanel {
                 try {
                     let connectionInfo = new ConnectionInfo(message.connectionInfo.url, message.connectionInfo.login, message.connectionInfo.password);
                     if (connectionInfo.getHostName() === '') {
-                        vscode.window.showErrorMessage("Unable to parse url. Example: http://localhost:5000");
-                        // TODO: After login always showing message: Unsupported protocol, need research
+                        vscode.window.showErrorMessage("Unable to parse url. Example: http://localhost:81");
                     } else if (connectionInfo.getProtocol() !== 'http' || connectionInfo.getProtocol() !== 'https') {
                         vscode.window.showErrorMessage("Unsupported protocol");
                     }
 
                     ConfigurationHelper.setLoginData(connectionInfo);
 
-                    if (await AppContext.tryCreateConnection()) {
-                        AppContext.reloadWorkSpace();
+                    if (await CreatioCodeContext.tryCreateConnection()) {
+                        CreatioCodeContext.reloadWorkSpace();
                         this.dispose();
                     }
                 } catch (error: any) {
@@ -34,6 +38,7 @@ export class LoginPanel extends GenericWebViewPanel {
             case 'getLoginData':
                 this.postMessage(ConfigurationHelper.getLoginData() ? ConfigurationHelper.getLoginData() : {});
                 break;
+
         }
     };
 
