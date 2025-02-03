@@ -13,8 +13,9 @@ export class LoginPanel extends GenericWebViewPanel {
             case 'login':
                 try {
                     let connectionInfo = new ConnectionInfo(message.connectionInfo.url, message.connectionInfo.login, message.connectionInfo.password);
-                    
-                    if (connectionInfo.getProtocol() !== 'http:' && connectionInfo.getProtocol() !== 'https:') {
+                    if (connectionInfo.getHostName() === '') {
+                        throw new Error("Unable to parse url. Example: http://localhost:5000");
+                    } else if (connectionInfo.getProtocol() !== 'http:' && connectionInfo.getProtocol() !== 'https:') {
                         throw new Error("Unsupported protocol");
                     }
 
@@ -28,9 +29,6 @@ export class LoginPanel extends GenericWebViewPanel {
                     if (error.code === 'ECONNREFUSED') {
                         vscode.window.showErrorMessage(`Couldn't connect to ${error.address}:${error.port}`);
                     }
-                    if (error.code === "ERR_INVALID_URL") {
-                        vscode.window.showErrorMessage("Unable to parse url. Example: http://localhost:5000");
-                    }   
                     else {
                         vscode.window.showErrorMessage(error.message);
                     }
