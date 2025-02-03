@@ -1,9 +1,8 @@
-# BPMCode
+# bpmcode README
 
 This Visual Studio Code extension allows to connect to BPMSoft Configurator and edit code.
 
-## Features
-
+## Feature showoff
 Autocompletion based on your own server setup
 ![Autocomplete](https://user-images.githubusercontent.com/81585996/207141932-c196c826-b81e-4e4f-bb71-7216bbd9f0a8.png)
 
@@ -23,6 +22,3 @@ Goto dependency
 
 * File icon won't show if file was opened before connecting
 * Retry connection dialouge is created multiple times
-
-## Forked
-Original author: [@LuckyOneDev](https://github.com/LuckyOneDev)
