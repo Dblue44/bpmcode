@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { Schema, WorkSpaceItem, SchemaType, BuildResponse } from '../../api/TypeDefinitions';
+import { Schema, WorkSpaceItem, SchemaType } from '../../api/TypeDefinitions';
 import { ConfigurationHelper } from '../../common/ConfigurationHelper';
 import { Utils } from '../../common/Utils';
 import { PushToSVNPanel } from '../SVN/PushSVNPanel';
@@ -143,68 +143,89 @@ export class FileSystemProvider implements vscode.FileSystemProvider {
     }
 
     build() {
-        vscode.window.withProgress({
-            "location": vscode.ProgressLocation.Notification,
-            "title": "Compiling"
-        }, async (progress, token) => {
-            let response = await AppContext.client?.build();
-            this.processMessages(response);
-        });
+        vscode.window.withProgress(
+            {
+                "location": vscode.ProgressLocation.Notification,
+                "title": "Compiling"
+            }, async (progress, token) => {
+                let response = await AppContext.client?.build();
+                // TODO: Refactor
+                if (!response?.success && response?.errors) {
+                    Utils.createYesNoDialouge(`Build failed with ${response.errors.length} errors. Show errors?`, () => {
+                        let tableArray = new Array<Array<string>>();
+                        tableArray.push(["File", "Line", "Column", "Code", "Error"]);
+                        response!.errors!.forEach(error => {
+                            tableArray.push([error.fileName, error.line, error.column, error.errorNumber, error.errorText]);
+                        });
+                        let style = `
+                        <style>
+                            table {
+                                width: 100%;
+                            }
+
+                            table, th, td {
+                                border: 1px solid;
+                                text-align: center;
+                                border-collapse: collapse;
+                            }
+
+                            th, td {
+                                padding: 5px;
+                            }
+                        </style>`;
+                        let panel = new SimplePanel(AppContext.extensionContext, `Build errors ${new Date(Date.now()).toISOString()}`, style + WebviewHelper.createTableString(tableArray));
+                        panel.createPanel();
+                    });
+
+                } else if (response?.message) {
+                    vscode.window.showInformationMessage(response?.message);
+                } else {
+                    vscode.window.showInformationMessage("Build completed");
+                }
+            });
     }
 
     rebuild() {
-        vscode.window.withProgress({
-            "location": vscode.ProgressLocation.Notification,
-            "title": "Compiling"
-        }, async (progress, token) => {
-            let response = await AppContext.client?.rebuild();
-            this.processMessages(response);
-        });
-    }
+        vscode.window.withProgress(
+            {
+                "location": vscode.ProgressLocation.Notification,
+                "title": "Compiling"
+            }, async (progress, token) => {
+                let response = await AppContext.client?.rebuild();
+                // TODO: Refactor
+                if (!response?.success && response?.errors) {
+                    Utils.createYesNoDialouge(`Build failed with ${response.errors.length} errors. Show errors?`, () => {
+                        let tableArray = new Array<Array<string>>();
+                        tableArray.push(["File", "Line", "Column", "Code", "Error"]);
+                        response!.errors!.forEach(error => {
+                            tableArray.push([error.fileName, error.line, error.column, error.errorNumber, error.errorText]);
+                        });
+                        let style = `
+                        <style>
+                            table {
+                                width: 100%;
+                            }
 
-    processMessages(response: BuildResponse | null) {
-        if (!response?.success && response?.errors) {
-            this.showErrors(response.errors);
-        }
-        else if (response?.message) {
-            vscode.window.showInformationMessage(response?.message);
-        } else {
-            vscode.window.showInformationMessage("Build completed");
-        }
-    }
+                            table, th, td {
+                                border: 1px solid;
+                                text-align: center;
+                                border-collapse: collapse;
+                            }
 
-    showErrors(errors: any[]) {
-        Utils.createYesNoDialouge(`Build failed with ${errors.length} errors. Show errors?`, () => {
-            let tableArray = new Array<Array<string>>();
-            tableArray.push(["File", "Line", "Column", "Code", "Error"]);
-            errors!.forEach(error => {
-                tableArray.push([error.fileName, error.line, error.column, error.errorNumber, error.errorText]);
+                            th, td {
+                                padding: 5px;
+                            }
+                        </style>`;
+                        let panel = new SimplePanel(AppContext.extensionContext, `Build errors ${new Date(Date.now()).toISOString()}`, style + WebviewHelper.createTableString(tableArray));
+                        panel.createPanel();
+                    });
+
+                } else if (response?.message) {
+                    vscode.window.showInformationMessage(response?.message);
+                } else {
+                    vscode.window.showInformationMessage("Build completed");
+                }
             });
-
-            let style = `
-            <style>
-                table {
-                    width: 100%;
-                }
-
-                table, th, td {
-                    border: 1px solid;
-                    text-align: center;
-                    border-collapse: collapse;
-                }
-
-                th, td {
-                    padding: 5px;
-                }
-            </style>`;
-
-            let panel = new SimplePanel(
-                AppContext.extensionContext, 
-                `Build errors ${new Date(Date.now()).toISOString()}`, 
-                style + WebviewHelper.createTableString(tableArray)
-            );
-            panel.createPanel();
-        });
     }
 
     generateChanges(resourceUri: vscode.Uri, context: vscode.ExtensionContext) {
