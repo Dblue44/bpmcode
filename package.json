@@ -2,7 +2,7 @@
   "name": "bpmcode",
   "displayName": "BPMCode",
   "description": "VSCode integration with BPMSoft Configurator",
-  "version": "0.1.2",
+  "version": "0.1.0",
   "repository": "https://github.com/valuetype/bpmcode",
   "publisher": "valuetype",
   "icon": "resources/media/icon.png",
