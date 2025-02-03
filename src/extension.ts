@@ -118,6 +118,24 @@ export function activate(context: vscode.ExtensionContext) {
 	);
 
 	context.subscriptions.push(
+		vscode.commands.registerCommand("bpmcode.clearRedis", async () => {
+			vscode.window.showInformationMessage('Clearing Redis...');
+			try {
+				await AppContext.client.reloadRedis();
+				vscode.window.showInformationMessage('Redis cache cleared successfully.');
+			} catch (error) {
+				vscode.window.showErrorMessage(`Error. ${error}`);
+			}
+		})
+	);
+
+	context.subscriptions.push(
+		vscode.commands.registerCommand('bpmcode.showLess', async (uri: vscode.Uri) => {
+			await AppContext.fsProvider.openLess(uri);
+		})
+	);
+
+	context.subscriptions.push(
 		vscode.commands.registerCommand("bpmcode.rebuild", async () => {
 			await AppContext.fsProvider.rebuild();
 		})

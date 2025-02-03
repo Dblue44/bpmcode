@@ -192,6 +192,17 @@ export class ApiClient {
 		return json;
 	}
 
+	async reloadRedis(): Promise<void> {
+        try {
+            const response = await this.enqueueCommand<BPMSoft.Response>(ReqestType.ClearRedisDb);
+            if (!response?.success) {
+                throw new Error(`Response message: ${response?.errorInfo?.message}`);
+            }
+        } catch (error) {
+            throw new Error(`Failed to clear Redis cache. ${error}`);
+        }
+    }
+
 	/**
 	 * UNUSED. METHODS IN DEVELOPMENT
 	 */

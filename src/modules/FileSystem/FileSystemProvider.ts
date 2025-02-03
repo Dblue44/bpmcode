@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import * as path from 'path';
 import { Schema, WorkSpaceItem, SchemaType, BuildResponse } from '../../api/TypeDefinitions';
 import { ConfigurationHelper } from '../../common/ConfigurationHelper';
 import { Utils } from '../../common/Utils';
@@ -23,7 +24,11 @@ export class FileSystemProvider implements vscode.FileSystemProvider {
         let file: any = AppContext.fsHelper.read(uri);
         // Local save
         if (file && file.schema) {
-            file.schema.body = content.toString();
+            if (uri.path.includes(".less")) {
+                file.schema.less = content.toString();
+            } else {
+                file.schema.body = content.toString();
+            }
             AppContext.fsHelper.write(file);
         }
 
@@ -36,7 +41,6 @@ export class FileSystemProvider implements vscode.FileSystemProvider {
         }
 
         if (options.overwrite) {
-            file.schema.body = content.toString();
             return this.saveFile(uri, file);
         }
 
@@ -73,12 +77,19 @@ export class FileSystemProvider implements vscode.FileSystemProvider {
             title: `Loading file ${uri.path}`
         }, async (progress, token) => {
             let file = await this.getFile(uri);
-            if (file && file.schema && file.schema.body) {
+            if (file && file.schema) {
                 progress.report({
                     increment: 100,
                     message: "File loaded"
                 });
-                return Buffer.from(file.schema.body);
+                if (uri.path.includes(".less") && file.schema.less) {
+                    return Buffer.from(file.schema.less);
+                }
+                if (file.schema.body) {
+                    return Buffer.from(file.schema.body);
+                }
+                return Buffer.from("");
+                
             } else {
                 throw vscode.FileSystemError.FileNotFound();
             }
@@ -381,11 +392,11 @@ export class FileSystemProvider implements vscode.FileSystemProvider {
     }
 
     getMemFile(uri: vscode.Uri): File | undefined {
-        return this.files.find(x => AppContext.fsHelper.getPath(x).path === uri.path);
+        return this.files.find(file => path.parse(AppContext.fsHelper.getPath(file).path).name === path.parse(uri.path).name);
     }
 
     getMemFolder(uri: vscode.Uri): Directory | undefined {
-        return this.folders.find(x => AppContext.fsHelper.getPath(x).path === uri.path);
+        return this.folders.find(folder => AppContext.fsHelper.getPath(folder).path === uri.path);
     }
 
     private async changeMemFile(uri: vscode.Uri, file: File) {
@@ -412,7 +423,7 @@ export class FileSystemProvider implements vscode.FileSystemProvider {
     }
 
     private async loadFile(uri: vscode.Uri) {
-        let inMemFile = this.files.find(file => AppContext.fsHelper.getPath(file).path === uri.path);
+        let inMemFile = this.files.find(file => path.parse(AppContext.fsHelper.getPath(file).path).name === path.parse(uri.path).name);
         if (!inMemFile) {
             throw vscode.FileSystemError.FileNotFound();
         }
@@ -477,7 +488,24 @@ export class FileSystemProvider implements vscode.FileSystemProvider {
         });
     }
 
+    async openLess(uri: vscode.Uri) {
+        const lessContent = await this.getLessContent(uri);
+        if (lessContent.trim().length === 0) {
+            return;
+        }
+        const virtualUri = vscode.Uri.parse(`bpmsoft:${uri.path.replace(".js", ".less")}`);
+        const doc = await vscode.workspace.openTextDocument(virtualUri);
+        await vscode.window.showTextDocument(doc, { preview: false });
+    }
 
+    async getLessContent(uri: vscode.Uri): Promise<string> {
+        let file = await this.getFile(uri);
+        return file.schema && file.schema.less && this.formatLess(file.schema.less) ? file.schema.less : "";
+      }
+    
+    private formatLess(lessCode: string): string {
+        return lessCode.replace(/\n/g, '\n  '); 
+    }
 
     private reconnects: string[] = [];
     /**
@@ -514,7 +542,7 @@ export class FileSystemProvider implements vscode.FileSystemProvider {
                 return await this.getFile(uri, silent);
             }
         } else {
-            let inMemFile = this.files.find(file => AppContext.fsHelper.getPath(file).path === uri.path);
+            let inMemFile = this.files.find(file => path.parse(AppContext.fsHelper.getPath(file).path).name === path.parse(uri.path).name);
             if (!inMemFile) {
                 throw vscode.FileSystemError.FileNotFound();
             }
@@ -528,10 +556,13 @@ export class FileSystemProvider implements vscode.FileSystemProvider {
                     this.verifyFile(uri); // File is fully loaded. Comparing to server version
                     inMemFile.lastSynced = Date.now();
                 }
+                vscode.commands.executeCommand('setContext', 'hasLessContent', localFile.schema && localFile.schema.less ? true : false);
                 return localFile;
             } else {
                 // File is not loaded
-                return await this.loadFile(uri);
+                var file = await this.loadFile(uri);
+                vscode.commands.executeCommand('setContext', 'hasLessContent', file.schema && file.schema.less ? true : false);
+                return file;
             }
         }
     }
