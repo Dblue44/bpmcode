@@ -148,7 +148,8 @@ export function CastSchemaFromeExport(expSchema: ExportSchema) : Schema {
 		caption: expSchema.LocalizableValues.filter(x => x.Key === 'Caption').map(x => { return { cultureName: x.Culture, value: x.Value };  }),
 		description: [],
 		localizableStrings: [],
-		extendParent: expSchema.ExtendParent
+		extendParent: expSchema.ExtendParent,
+		less: expSchema.Less
 	};
 	return schema;
 }
@@ -165,6 +166,7 @@ export interface Schema {
 	description: Array<any>;
 	localizableStrings: Array<{ uId: string, name: string, parentSchemaUId: string }>;
 	extendParent: boolean;
+	less: string | null;
 }
 
 enum ClientShemaType {

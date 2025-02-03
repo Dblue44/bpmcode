@@ -31,9 +31,19 @@ export class FileSystemHelper {
     read(uri: vscode.Uri): File | undefined {
         let file: any = undefined;
         let body: string | undefined = undefined;
+        let less: string | undefined = undefined;
+        let dataUri = uri.with({ path: uri.path.replace(".less", ".js") });
+        
+        if (uri.path.includes(".less") || uri.path.includes(".js")) {
+            const lessUri = uri.with({ path: uri.path.replace(".js", ".less") });
+            const lessFilePath = this.getFullDataFilePath(lessUri);
+            if (fs.existsSync(lessFilePath)) {
+                less = fs.readFileSync(lessFilePath, { encoding: 'utf8' });
+            }
+        }
 
         // Check if the data file exists and read it
-        const dataFilePath = this.getFullDataFilePath(uri);
+        const dataFilePath = this.getFullDataFilePath(dataUri);
         if (fs.existsSync(dataFilePath)) {
             body = fs.readFileSync(dataFilePath, { encoding: 'utf8' });
         }
@@ -48,7 +58,7 @@ export class FileSystemHelper {
         }
 
         // Check if the metadata file exists and read it
-        const metaDataFilePath = this.getMetaDataFilePathWithExtension(uri);
+        const metaDataFilePath = this.getMetaDataFilePathWithExtension(dataUri);
         if (fs.existsSync(metaDataFilePath)) {
             const metadataContent = fs.readFileSync(metaDataFilePath, { encoding: 'utf8' });
 
@@ -64,6 +74,9 @@ export class FileSystemHelper {
             }
             if (body) {
                 file.schema.body = body;
+            }
+            if (less) {
+                file.schema.less = less;
             }
 
             return Object.assign(new File("", {} as WorkSpaceItem), file) as File;
@@ -88,6 +101,12 @@ export class FileSystemHelper {
         if (data.schema?.body) {
             fs.writeFileSync(this.getFullDataFilePath(uri), data.schema.body);
             data.schema.body = "";
+        }
+
+        // Write the less of the file to the data file
+        if (data.schema?.less) {
+            fs.writeFileSync(this.getFullDataFilePath(uri).replace(".js", ".less"), data.schema.less);
+            data.schema.less = "";
         }
 
         // Create the metadata file folder if it doesn't exist
@@ -170,7 +189,7 @@ export class FileSystemHelper {
     }
 
     getMetaDataFilePathWithExtension(uri: vscode.Uri): string {
-        return `${this.getFullMetaDataFilePath(uri)}.metadata.json`;
+        return `${this.getFullMetaDataFilePath(uri).replace(".less", ".js")}.metadata.json`;
     }
 
     getFullMetaDataFilePath(uri: vscode.Uri): string {
