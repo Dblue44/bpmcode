@@ -22,3 +22,4 @@ Goto dependency
 
 * File icon won't show if file was opened before connecting
 * Retry connection dialouge is created multiple times
+* Unsupported protocol message on http localhost connection
