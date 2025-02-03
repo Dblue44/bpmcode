@@ -113,7 +113,7 @@ export class AppContext {
         panelProvider.createPanel();
     }
     
-    static async reloadWorkspace(): Promise<ReloadStatus> {
+    static async reloadWorkSpace(): Promise<ReloadStatus> {
         vscode.commands.executeCommand('setContext', 'bpmcode.workspaceLoaded', false);
         let connectionInfo = ConfigurationHelper.getLoginData();
         if (!connectionInfo) {

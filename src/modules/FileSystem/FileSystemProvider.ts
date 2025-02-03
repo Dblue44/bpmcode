@@ -544,7 +544,7 @@ export class FileSystemProvider implements vscode.FileSystemProvider {
             this.reconnects.push(connectionInfo!.getHostName()); 
             if (isReconnect === "Reconnect") {
                 this.reconnects.splice(this.reconnects.indexOf(connectionInfo!.getHostName()), 1);
-                let success = await AppContext.reloadWorkspace();
+                let success = await AppContext.reloadWorkSpace();
                 if (success) {
                     return await this.getFile(uri, silent);
                 } else {
