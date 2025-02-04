@@ -329,6 +329,9 @@ export class FileSystemProvider implements vscode.FileSystemProvider {
                 while (items[items.length - 1].schema?.parent && token.isCancellationRequested === false) {
                     // @ts-ignore
                     let newFile = await this.getFile(this.getSchemaUri(items[items.length - 1].schema?.parent.uId), true);
+                    if (newFile.workSpaceItem.uId === items[items.length - 1].workSpaceItem.uId) {
+                        break;
+                    }
                     if (newFile) {
                         items.push(newFile);
                     } else {
@@ -629,6 +632,11 @@ export class FileSystemProvider implements vscode.FileSystemProvider {
                 this.files.forEach(file => {
                     file.mtime = Date.now();
                     AppContext.fsHelper.update(file);
+                    if (file.schema?.less) {
+                        const clone = file.clone({name: file.name.replace(/\.js$/, ".less")});
+                        AppContext.fsHelper.update(clone);
+                        this.files.push(clone);
+                    }
                     this._fireSoon({
                         type: vscode.FileChangeType.Created,
                         uri: AppContext.fsHelper.getPath(file)

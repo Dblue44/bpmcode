@@ -29,6 +29,10 @@ export class File implements vscode.FileStat {
         this.workSpaceItem = schema;
         this.permissions = schema?.isReadOnly ? vscode.FilePermission.Readonly : undefined;
     }
+
+    clone(overrides: Partial<File> = {}): File {
+        return Object.assign(new File(this.name, this.workSpaceItem, this.ctime, this.mtime, this.size), overrides);
+    }
 }
 
 export class Directory implements vscode.FileStat {
@@ -91,22 +95,31 @@ export class ExplorerItem extends vscode.TreeItem {
 
     private sortEntries(entries: Entry[]): Entry[] {
         return entries.sort((a, b) => {
+            if (a instanceof Directory && b instanceof File) {
+                return -1; // Директории идут перед файлами
+            }
+            if (a instanceof File && b instanceof Directory) {
+                return 1;
+            }
             if (a instanceof File && b instanceof File) {
                 let fileA = a as File;
                 let fileB = b as File;
+                if (fileA.workSpaceItem.isLocked && !fileB.workSpaceItem.isLocked) {
+                    return -1;
+                }
+                if (!fileA.workSpaceItem.isLocked && fileB.workSpaceItem.isLocked) {
+                    return 1;
+                }
+    
                 if (fileA.workSpaceItem.isChanged && !fileB.workSpaceItem.isChanged) {
                     return -1;
-                } else if (
-                    fileA.workSpaceItem.isLocked &&
-                    !fileB.workSpaceItem.isLocked
-                ) {
-                    return -1;
-                } else {
-                    return 0;
                 }
-            } else {
-                return 0;
+                if (!fileA.workSpaceItem.isChanged && fileB.workSpaceItem.isChanged) {
+                    return 1;
+                }
+                return fileA.name.localeCompare(fileB.name); 
             }
+            return a.name.localeCompare(b.name);
         });
     }
 

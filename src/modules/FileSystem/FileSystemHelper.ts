@@ -15,6 +15,9 @@ export class FileSystemHelper {
 
     getPath(entry: Entry | WorkSpaceItem): vscode.Uri {
         if (entry instanceof File) {
+            if (entry.name.endsWith(".less")) {
+                return vscode.Uri.joinPath(this.getNameSpace(), entry.workSpaceItem.packageName, entry.name);
+            }
             return vscode.Uri.joinPath(this.getNameSpace(), entry.workSpaceItem.packageName, this.withExtension(entry.workSpaceItem));
         } else if (isWorkspaceItem(entry)) {
             return vscode.Uri.joinPath(this.getNameSpace(), entry.name, this.withExtension(entry));

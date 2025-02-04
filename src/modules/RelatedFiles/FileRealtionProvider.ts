@@ -95,9 +95,9 @@ export class FileRelationProvider {
             if (!this.schemaRelationCache.get(uris[0])) {
                 await this.loadAst(uris[0]);
             }
-        } else {
-            console.warn(`Uri ${schemaName} not found by name. It might lead to error.`);
-        }
+        } //else {
+            //console.warn(`Uri ${schemaName} not found by name. It might lead to error.`);
+        //}
     }
     
 

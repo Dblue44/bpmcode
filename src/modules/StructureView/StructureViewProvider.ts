@@ -83,7 +83,9 @@ export class StructureViewProvider implements vscode.TreeDataProvider<SchemaStru
 			const currentDocument = vscode.window.activeTextEditor?.document;
 			if (currentDocument) {
 				try {
-					
+					if (currentDocument.fileName.endsWith(".less")) {
+						return;
+					}
 					let ast = await AppContext.fileRelationProvider.loadAst(currentDocument.uri);
 					let treeItems = ast.getAsNodes().map(node => new SchemaStructureTreeItem(node));
 					return treeItems;
