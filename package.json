@@ -44,8 +44,8 @@
         "command": "bpmcode.clearRedis",
         "title": "Clear Redis",
         "icon": {
-          "light": "resources/media/redis-logo-svgrepo-com.svg",
-          "dark": "resources/media/redis-logo-svgrepo-com.svg"
+          "light": "resources/media/redis-logo.svg",
+          "dark": "resources/media/redis-logo.svg"
         }
       },
       {
