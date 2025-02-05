@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 16 16" fit=""
+    preserveAspectRatio="xMidYMid meet" focusable="false">
+    <defs>
+        <style>
+            .we-item-data-a,.we-item-data-c,.we-item-data-d{fill:none;}.we-item-data-b,.we-item-data-f{fill:#4e7bd8;}.we-item-data-d{stroke:#4e7bd8;}.we-item-data-e,.we-item-data-f{stroke:none;} </style>
+    </defs>
+    <rect class="we-item-data-a" width="16" height="16"></rect>
+    <path class="we-item-data-b"
+        d="M24.245,46H16.8a.268.268,0,1,0,0,.533h7.447a.268.268,0,1,0,0-.533Z"
+        transform="translate(-12.521 -33.733)"></path>
+    <g class="we-item-data-c" transform="translate(1)">
+        <path class="we-item-data-e" d="M0,0H9V5h5V16H0Z"></path>
+        <path class="we-item-data-f"
+            d="M 1 1 L 1 15 L 13 15 L 13 6 L 9 6 L 8 6 L 8 5 L 8 1 L 1 1 M 0 0 L 9 0 L 9 5 L 14 5 L 14 16 L 0 16 L 0 0 Z"></path>
+    </g>
+    <path class="we-item-data-d" d="M2.979,3.258h3.5" transform="translate(1.021 0.242)"></path>
+    <path class="we-item-data-d" d="M2.979,3.258h3.5" transform="translate(1.021 3.242)"></path>
+    <path class="we-item-data-d" d="M2.979,3.258H11" transform="translate(1.021 6.242)"></path>
+    <path class="we-item-data-d" d="M2.979,3.258H11" transform="translate(1.021 9.242)"></path>
+    <path class="we-item-data-d" d="M8.5.366l5.118,5.151" transform="translate(1)"></path>
+</svg>
