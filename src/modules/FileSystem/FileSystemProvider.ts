@@ -7,7 +7,7 @@ import { SimplePanel } from '../SimplePanel/SimplePanel';
 import { WebviewHelper } from '../../common/WebView/WebViewHelper';
 import { AppContext } from '../../globalContext';
 import { wait } from 'ts-retry';
-import { Entry, File, Directory } from './ExplorerItem';
+import { Entry, File, Directory, InnerFolder } from './ExplorerItem';
 
 export class FileSystemProvider implements vscode.FileSystemProvider {
 
@@ -89,12 +89,12 @@ export class FileSystemProvider implements vscode.FileSystemProvider {
                     return Buffer.from(file.schema.body);
                 }
                 return Buffer.from("");
-                
+
             } else {
                 throw vscode.FileSystemError.FileNotFound();
             }
         });
-        
+
         // AppContext.explorer.reveal(uri);
         return result;
     }
@@ -195,8 +195,8 @@ export class FileSystemProvider implements vscode.FileSystemProvider {
             </style>`;
 
             let panel = new SimplePanel(
-                AppContext.extensionContext, 
-                `Build errors ${new Date(Date.now()).toISOString()}`, 
+                AppContext.extensionContext,
+                `Build errors ${new Date(Date.now()).toISOString()}`,
                 style + WebviewHelper.createTableString(tableArray)
             );
             panel.createPanel();
@@ -220,6 +220,34 @@ export class FileSystemProvider implements vscode.FileSystemProvider {
                     throw vscode.FileSystemError.FileNotFound();
                 }
             });
+    }
+
+    getInnerFoldersByFolder(folder: Directory): Entry[] {
+        let innerFolders: Entry[] = [];
+        for (const [key, value] of Object.entries(SchemaType)) {
+            const type = value as SchemaType;
+            const count = AppContext.fsProvider.files.filter(
+                file => file.workSpaceItem.type === type
+                    && file.workSpaceItem.packageUId === folder.package?.uId
+            ).length;
+            if (count > 0) {
+                innerFolders.push(
+                    new InnerFolder(
+                        ConfigurationHelper.getInnerFolderDescription(type) ?? "",
+                        folder,
+                        type
+                    )
+                );
+            }
+        }
+        return innerFolders;
+    }
+
+    getFilesByInnerFolder(innerFolder: InnerFolder): Entry[] {
+        return AppContext.fsProvider.files.filter(
+            file => file.workSpaceItem.type === innerFolder.folderType
+                && file.workSpaceItem.packageUId === innerFolder.package?.uId
+        );
     }
 
     getUriByName(schemaName: string): vscode.Uri[] {
@@ -456,7 +484,7 @@ export class FileSystemProvider implements vscode.FileSystemProvider {
     }
 
     private verificationList: vscode.Uri[] = [];
-    
+
     private async verifyFile(uri: vscode.Uri) {
         if (this.verificationList.includes(uri)) {
             return;
@@ -482,7 +510,7 @@ export class FileSystemProvider implements vscode.FileSystemProvider {
                     this.verificationList.splice(this.verificationList.indexOf(uri), 1);
                     throw vscode.FileSystemError.FileNotFound();
                 }
-                
+
                 this._fireSoon({
                     type: vscode.FileChangeType.Changed,
                     uri: uri
@@ -504,10 +532,14 @@ export class FileSystemProvider implements vscode.FileSystemProvider {
     async getLessContent(uri: vscode.Uri): Promise<string> {
         let file = await this.getFile(uri);
         return file.schema && file.schema.less && this.formatLess(file.schema.less) ? file.schema.less : "";
-      }
-    
+    }
+
     private formatLess(lessCode: string): string {
-        return lessCode.replace(/\n/g, '\n  '); 
+        return lessCode.replace(/\n/g, '\n  ');
+    }
+
+    getFolder(uri: vscode.Uri): Directory | undefined {
+        return this.folders.find(x => AppContext.fsHelper.getPath(x).path === uri.path);
     }
 
     private reconnects: string[] = [];
@@ -527,7 +559,7 @@ export class FileSystemProvider implements vscode.FileSystemProvider {
             }
 
             var isReconnect = await vscode.window.showInformationMessage(`Reconnect to ${connectionInfo?.getHostName()}`, "Reconnect", "No");
-            this.reconnects.push(connectionInfo!.getHostName()); 
+            this.reconnects.push(connectionInfo!.getHostName());
             if (isReconnect === "Reconnect") {
                 this.reconnects.splice(this.reconnects.indexOf(connectionInfo!.getHostName()), 1);
                 let success = await AppContext.reloadWorkspace();
@@ -633,7 +665,7 @@ export class FileSystemProvider implements vscode.FileSystemProvider {
                     file.mtime = Date.now();
                     AppContext.fsHelper.update(file);
                     if (file.schema?.less) {
-                        const clone = file.clone({name: file.name.replace(/\.js$/, ".less")});
+                        const clone = file.clone({ name: file.name.replace(/\.js$/, ".less") });
                         AppContext.fsHelper.update(clone);
                         this.files.push(clone);
                     }

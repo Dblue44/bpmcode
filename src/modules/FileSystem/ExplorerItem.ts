@@ -1,6 +1,8 @@
 import * as vscode from "vscode";
-import { PackageMetaInfo, Schema, WorkSpaceItem } from "../../api/TypeDefinitions";
+import * as path from 'path';
+import { PackageMetaInfo, Schema, WorkSpaceItem, SchemaType } from "../../api/TypeDefinitions";
 import { AppContext } from "../../globalContext";
+import { ConfigurationHelper } from "../../common/ConfigurationHelper";
 
 export class File implements vscode.FileStat {
 
@@ -35,6 +37,27 @@ export class File implements vscode.FileStat {
     }
 }
 
+export class InnerFolder implements vscode.FileStat {
+
+    type: vscode.FileType;
+    ctime: number;
+    mtime: number;
+    size: number;
+    package: PackageMetaInfo | null;
+    name: string;
+    folderType: SchemaType;
+
+    constructor(name: string, directory: Directory, folderType: SchemaType) {
+        this.type = vscode.FileType.Directory;
+        this.ctime = Date.now();
+        this.mtime = Date.now();
+        this.name = name;
+        this.size = 0;
+        this.package = directory.package;
+        this.folderType = folderType;
+    }
+}
+
 export class Directory implements vscode.FileStat {
 
     type: vscode.FileType;
@@ -56,28 +79,44 @@ export class Directory implements vscode.FileStat {
     }
 }
 
-export type Entry = File | Directory;
+export type Entry = File | Directory | InnerFolder;
 
 export class ExplorerItem extends vscode.TreeItem {
-    children: ExplorerItem[] = [];
+    children: Entry[] = [];
     resourceUri: vscode.Uri;
 
     constructor(resource: Entry) {
         super(
             resource.name,
-            resource instanceof Directory
+            resource instanceof Directory || resource instanceof InnerFolder
                 ? vscode.TreeItemCollapsibleState.Collapsed
                 : vscode.TreeItemCollapsibleState.None
         );
         this.resourceUri = AppContext.fsHelper.getPath(resource);
+
         if (resource instanceof Directory) {
             this.contextValue = "BPMSoftPackage";
             this.iconPath = resource.package?.isReadOnly
-                ? new vscode.ThemeIcon("gist-private")
-                : new vscode.ThemeIcon("file-directory");
-            this.description = resource.package?.version;
+                ? vscode.Uri.file(path.resolve(__dirname, "../../../resources/media/folder_icons/close-folder.svg"))
+                : vscode.Uri.file(path.resolve(__dirname, "../../../resources/media/folder_icons/open-folder.svg"));
+            this.children = AppContext.fsProvider.getInnerFoldersByFolder(resource);
+            this.description = `${resource.package?.maintainer} ${resource.package?.version} [${AppContext.fsProvider.files.filter(file => file.workSpaceItem.packageUId === resource.package?.uId).length} files]`;
             this.tooltip = `Maintainer: ${resource.package?.maintainer}\nDescription: ${resource.package?.description}`;
-        } else {
+        }
+
+        if (resource instanceof InnerFolder) { 
+            this.contextValue = "BPMSoftInnerFolder";
+            const iconFileName = ConfigurationHelper.getInnerFolderIcon(resource.folderType);
+            this.iconPath = iconFileName 
+                ? vscode.Uri.file(path.resolve(__dirname, "../../../resources/media/folder_icons", iconFileName))
+                : vscode.Uri.file(path.resolve(__dirname, "../../../resources/media/folder_icons/open-folder.svg"));
+            this.description = ConfigurationHelper.getInnerFolderDescription(resource.folderType);
+            this.children = AppContext.fsProvider.getFilesByInnerFolder(resource);
+            this.tooltip = `${this.description} ${this.children.length}`;
+            
+        }
+        
+        if (resource instanceof File) {
             this.contextValue = "BPMSoftSchema";
             this.command = {
                 command: "bpmcode.loadFile",
@@ -124,10 +163,10 @@ export class ExplorerItem extends vscode.TreeItem {
     }
 
     getChildren(): vscode.ProviderResult<ExplorerItem[]> {
-        let entries = AppContext.fsProvider.getDirectoryContents(
-            this.resourceUri!
-        );
-        return this.sortEntries(entries).map(
+        // let entries = AppContext.fsProvider.getDirectoryContents(
+        //     this.resourceUri!
+        // );
+        return this.sortEntries(this.children).map(
             (entry) => new ExplorerItem(entry)
         );
     }

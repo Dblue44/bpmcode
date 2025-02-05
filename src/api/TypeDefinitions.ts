@@ -166,7 +166,7 @@ export interface Schema {
 	description: Array<any>;
 	localizableStrings: Array<{ uId: string, name: string, parentSchemaUId: string }>;
 	extendParent: boolean;
-	less: string | null;
+	less?: string;
 }
 
 enum ClientShemaType {

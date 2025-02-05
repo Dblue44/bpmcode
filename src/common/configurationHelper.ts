@@ -55,6 +55,56 @@ export class ConfigurationHelper {
         }
     }
 
+    static getInnerFolderIcon(folderType: SchemaType): string | undefined {
+        switch (folderType) {
+            case SchemaType.entity:
+                return ConfigurationHelper.config.get("fileTypes.Entity.Icon");
+            case SchemaType.case:
+                return ConfigurationHelper.config.get("fileTypes.Case.Icon");
+            case SchemaType.clientUnit:
+                return ConfigurationHelper.config.get("fileTypes.ClientUnit.Icon");
+            case SchemaType.data:
+                return ConfigurationHelper.config.get("fileTypes.Data.Icon");
+            case SchemaType.dll:
+                return ConfigurationHelper.config.get("fileTypes.Dll.Icon");
+            case SchemaType.process:
+                return ConfigurationHelper.config.get("fileTypes.BusinessProcess.Icon");
+            case SchemaType.processUserTask:
+                return ConfigurationHelper.config.get("fileTypes.UserTask.Icon");
+            case SchemaType.sourceCode:
+                return ConfigurationHelper.config.get("fileTypes.SourceCode.Icon");
+            case SchemaType.sqlScript:
+                return ConfigurationHelper.config.get("fileTypes.SqlScript.Icon");
+            default:
+                return ConfigurationHelper.config.get("fileTypes.Other.Icon");
+        }
+    }
+
+    static getInnerFolderDescription(folderType: SchemaType): string | undefined{
+        switch (folderType) {
+            case SchemaType.entity:
+                return ConfigurationHelper.config.get("fileTypes.Entity.Name");
+            case SchemaType.case:
+                return ConfigurationHelper.config.get("fileTypes.Case.Name");
+            case SchemaType.clientUnit:
+                return ConfigurationHelper.config.get("fileTypes.ClientUnit.Name");
+            case SchemaType.data:
+                return ConfigurationHelper.config.get("fileTypes.Data.Name");
+            case SchemaType.dll:
+                return ConfigurationHelper.config.get("fileTypes.Dll.Name");
+            case SchemaType.process:
+                return ConfigurationHelper.config.get("fileTypes.BusinessProcess.Name");
+            case SchemaType.processUserTask:
+                return ConfigurationHelper.config.get("fileTypes.UserTask.Name");
+            case SchemaType.sourceCode:
+                return ConfigurationHelper.config.get("fileTypes.SourceCode.Name");
+            case SchemaType.sqlScript:
+                return ConfigurationHelper.config.get("fileTypes.SqlScript.Name");
+            default:
+                return ConfigurationHelper.config.get("fileTypes.Other.Name");
+        }  
+    }
+
     static isFileTypeEnabled(type: SchemaType) {
         switch (type) {
             case SchemaType.clientUnit:

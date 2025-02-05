@@ -306,9 +306,109 @@
           "default": false,
           "description": "Show cases in file explorer."
         },
+        "bpmcode.fileTypes.ClientUnit.Icon": {
+          "type": "string",
+          "default": "client-module.svg",
+          "description": "Client module svg icon"
+        },
+        "bpmcode.fileTypes.SourceCode.Icon": {
+          "type": "string",
+          "default": "source-code.svg",
+          "description": "Source code svg icon"
+        },
+        "bpmcode.fileTypes.SqlScript.Icon": {
+          "type": "string",
+          "default": "sql-script.svg",
+          "description": "Sql script svg icon"
+        },
+        "bpmcode.fileTypes.BusinessProcess.Icon": {
+          "type": "string",
+          "default": "business-process.svg",
+          "description": "Business processe svg icon"
+        },
+        "bpmcode.fileTypes.Entity.Icon": {
+          "type": "string",
+          "default": "object.svg",
+          "description": "Object svg icon"
+        },
+        "bpmcode.fileTypes.Data.Icon": {
+          "type": "string",
+          "default": "data.svg",
+          "description": "Data svg icon"
+        },
+        "bpmcode.fileTypes.UserTask.Icon": {
+          "type": "string",
+          "default": "user-task.svg",
+          "description": "User task svg icon"
+        },
+        "bpmcode.fileTypes.Case.Icon": {
+          "type": "string",
+          "default": "case.svg",
+          "description": "Case svg icon"
+        },
+        "bpmcode.fileTypes.Dll.Icon": {
+          "type": "string",
+          "default": "dll.svg",
+          "description": "Dll svg icon"
+        },
+        "bpmcode.fileTypes.Other.Icon": {
+          "type": "string",
+          "default": "other.svg",
+          "description": "Other svg icon"
+        },
+        "bpmcode.fileTypes.ClientUnit.Name": {
+          "type": "string",
+          "default": "Client module",
+          "description": "Client module folder name"
+        },
+        "bpmcode.fileTypes.SourceCode.Name": {
+          "type": "string",
+          "default": "Source code",
+          "description": "Source code folder name"
+        },
+        "bpmcode.fileTypes.SqlScript.Name": {
+          "type": "string",
+          "default": "SQL script",
+          "description": "Sql script folder name"
+        },
+        "bpmcode.fileTypes.BusinessProcess.Name": {
+          "type": "string",
+          "default": "Business process",
+          "description": "Business process folder name"
+        },
+        "bpmcode.fileTypes.Entity.Name": {
+          "type": "string",
+          "default": "Object",
+          "description": "Object folder name"
+        },
+        "bpmcode.fileTypes.Data.Name": {
+          "type": "string",
+          "default": "Data",
+          "description": "Data folder name"
+        },
+        "bpmcode.fileTypes.UserTask.Name": {
+          "type": "string",
+          "default": "User task",
+          "description": "User task folder name"
+        },
+        "bpmcode.fileTypes.Case.Name": {
+          "type": "string",
+          "default": "Case",
+          "description": "Case folder name"
+        },
+        "bpmcode.fileTypes.Dll.Name": {
+          "type": "string",
+          "default": "Dll",
+          "description": "Dll folder name"
+        },
+        "bpmcode.fileTypes.Other.Name": {
+          "type": "string",
+          "default": "Other",
+          "description": "Other folder name"
+        },
         "fileExtensions.Dll.Enabled": {
           "type": "boolean",
-          "default": false,
+          "default": true,
           "description": "Show dlls in file explorer."
         }
       }

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 16 16" fit=""
+    preserveAspectRatio="xMidYMid meet" focusable="false">
+    <defs>
+        <style>.we-item-cu-a{fill:none;}.we-item-cu-b{fill:#ed5a19;}.we-item-cu-c{fill:#f2f5ff;font-size:6px;font-family:SegoeUI-Bold,
+            Segoe UI;font-weight:700;letter-spacing:0.07em;} </style>
+    </defs>
+    <g transform="translate(2)">
+        <path class="we-item-cu-a" d="M0,0H8V4h4V16H0Z"></path>
+        <path class="we-item-cu-b" d="M1,1V15H11V5H7V1H1M0,0H8V4h4V16H0Z"></path>
+    </g>
+    <path class="we-item-cu-b" d="M0,0,4,4H0Z" transform="translate(10)"></path>
+    <rect class="we-item-cu-b" width="14" height="6" rx="1" transform="translate(1 6)"></rect>
+    <text class="we-item-cu-c" transform="translate(4.772 11)">
+        <tspan x="0" y="0">JS</tspan>
+    </text>
+    <rect class="we-item-cu-a" width="16" height="16"></rect>
+</svg>

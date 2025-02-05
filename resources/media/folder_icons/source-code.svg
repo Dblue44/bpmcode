@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 16 16" fit=""
+    preserveAspectRatio="xMidYMid meet" focusable="false">
+    <defs>
+        <style>.we-item-sc-a,.we-item-sc-b{fill:none;}.we-item-sc-c,.we-item-sc-f{fill:#22ac14;}.we-item-sc-d{fill:#f2f5ff;font-size:6px;font-family:SegoeUI-Bold,
+            Segoe
+            UI;font-weight:700;letter-spacing:0.135em;}.we-item-sc-e,.we-item-sc-f{stroke:none;} </style>
+    </defs>
+    <rect class="we-item-sc-a" width="16" height="16"></rect>
+    <g transform="translate(1)">
+        <g class="we-item-sc-b" transform="translate(1)">
+            <path class="we-item-sc-e" d="M0,0H8V4h4V16H0Z"></path>
+            <path class="we-item-sc-f"
+                d="M 1 1 L 1 15 L 11 15 L 11 5 L 7.999989986419678 5 L 6.999989986419678 5 L 6.999989986419678 4 L 6.999989986419678 1 L 1 1 M 0 0 L 7.999989986419678 0 L 7.999989986419678 4 L 12 4 L 12 16 L 0 16 L 0 0 Z"></path>
+        </g>
+        <path class="we-item-sc-c" d="M0,0,4,4H0Z" transform="translate(9)"></path>
+        <rect class="we-item-sc-c" width="14" height="6" rx="1" transform="translate(0 6)"></rect>
+        <text class="we-item-sc-d" transform="translate(7 11)">
+            <tspan x="-4.054" y="0">С#</tspan>
+        </text>
+    </g>
+</svg>

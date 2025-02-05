@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import { StructureViewProvider } from './modules/StructureView/StructureViewProvider';
 import { AppContext } from './globalContext';
 import { ExplorerItem } from './modules/FileSystem/ExplorerItem';
+// import { FileCountDecorationProvider } from './modules/FileSystem/FileDecorationProvider';
 
 function registerFileSystem(context: vscode.ExtensionContext) {
 	context.subscriptions.push(vscode.workspace.registerFileSystemProvider(
@@ -144,6 +145,9 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(
 		vscode.workspace.registerTextDocumentContentProvider("bpmsoft-completion", AppContext.intellisenseFsProv)
 	);
+
+	//const fileCountDecorationProvider = new FileCountDecorationProvider();
+    //context.subscriptions.push(vscode.window.registerFileDecorationProvider(fileCountDecorationProvider));
 
 	registerIntellisense(context);
 }
